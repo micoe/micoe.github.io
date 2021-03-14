@@ -1,0 +1,86 @@
+import datetime, platform,json, time,os
+from bs4 import BeautifulSoup
+def geth():
+    global w,y
+    w = {}
+    y = {}
+    for n in range(ys):
+        m1 = s.post(url + "get-more-view?uid=" + uid,data="bid=1265&sid_done=0%2C2205%2C2178%2C2090&is_shanghu_done=0&page=" + str(n)).json()
+        inf(m1['data'])
+    tplt = '{:4} {:6} {:3} {}'
+    print('是否开始', '任务id', '价格', '开始时间')
+    for i in sorted(y.items(), key=lambda a: a[1]['price'], reverse=True):
+        print(tplt.format(i[1]['allow'], i[0], i[1]['price'], '已开始'))
+    for i in sorted(w.items(), key=lambda a: a[1]['price'], reverse=True):
+        print(tplt.format(i[1]['allow'], i[0], i[1]['price'], i[1]['time']))
+    return
+
+
+def inf(soup):
+    l = BeautifulSoup(soup, 'html.parser').find_all('li')
+    for i in l:
+        if not i.attrs:
+            al = i.a.get_text()
+            img = i.find('p', class_="img").img.attrs['src']
+            pr = int(i.find('p', class_="h4").get_text()[5:-3])
+            if 'data-item_id' in i.a.attrs:
+                id = i.a.attrs['data-item_id']
+                d = {id: {'allow': al, 'price': pr, 'img': img}}
+                y.update(d)
+            else:
+                id = i.dd.span.get('data-item_id')
+                ti = int(i.dd.span.get('data-endtime')) + 1
+                t = datetime.datetime.now() + datetime.timedelta(seconds=ti)
+                d = {id: {'allow': al, 'price': pr, 'time': t, 'img': img}}
+                w.update(d)
+
+def rec(id):
+    global send
+    send = s.post(url + 'send-data', data='sid=2213&bid=1265&uid=' + uid + '&is_qd=1&item_id=' + id).json()
+    if send['code']==200:
+        print('\n',send['data'])
+        return True
+    else:return
+
+def gan():
+    while True:
+        id = input('请输入待抢任务id\n')
+        if id in y:
+            print('您选择的任务金额为',y[id]['price'])
+            if rec(id):break
+            else:
+                if platform.system().lower() == 'windows':os.system("cls")
+                else:os.system("clear")
+                print(Co,send['data'],'请重新输入一个任务id')
+                geth()
+                continue
+        elif id in w:
+            print('您选择的任务金额为', w[id]['price'])
+            wait = 1
+            while wait:
+                wait = (w[id]['time'] - datetime.datetime.now()).seconds
+                print('\r等待' + str(wait) + '秒' + '开抢', end='')
+                time.sleep(1)
+            if rec(id):break
+            else:
+                if platform.system().lower() == 'windows':os.system("cls")
+                else:os.system("clear")
+                print(Co,send['data'],'请重新输入一个任务id')
+                geth()
+                continue
+        else:print('id无效,请重新输入')
+
+def main():
+    global ys
+    ys=int(input('请输入需要获取的页数'))
+    geth()
+    gan()
+    input('抢单完成，按回车键退出')
+
+url = "https://www.jukemao.net/fangdan/"
+Co='Copyright © 2021 初音ミク All rights reserved\n'
+print(Co)
+s = requests.session()
+Cookie = PHPSESSID + ';' + 'back_url=%2Ffangdan%2Fcenter-new%3Fbid%3D1265%26is_new%3D0%26fangdan_uid%3D' + uid + ';uid=' + uid
+s.headers = {'User-Agent': 'MicroMessenger/', 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8','Cookie': Cookie}
+main()
