@@ -48,7 +48,7 @@ def check(BASE,token,tbl,IMG_URL,s):
                         img = i['ImgPath']
                     else:
                         img = IMG_URL + i['ImgPath']
-                    send('(精品)开始时间 '+i['CreateDate'][-8:-3],'付款总价：'+str(i['NeedPayMoney'])+'\n接单旺旺：'+tb+'\n店铺名称：'+i['ShopName'],img)
+                    #send('(精品)开始时间 '+i['CreateDate'][-8:-3],'付款总价：'+str(i['NeedPayMoney'])+'\n接单旺旺：'+tb+'\n店铺名称：'+i['ShopName'],img)
                     requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(精品)开始时间 '+i['CreateDate'][-8:-3]+' 旺旺号:'+tb,"content": {'接单旺旺': tb,'接单账号':phone, '任务网站': 'http://www.taoffd.com','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>', '店铺名': i['ShopName'],'付款总价': i['NeedPayMoney'], '开始时间': i['CreateDate'], '注意事项': '若通过关键词找不到商品可复制做单页面的商品id，然后套一下网址：https://item.taobao.com/item.htm?id=商品id，浏览器打开收藏加购，再通过关键词搜索一般都在前几个'},"template": "json"}), headers={'Content-Type': 'application/json'})
                     print(tb+'接单成功已推送')
                     t.append(tb)
@@ -62,21 +62,24 @@ def receive(BASE1,token,tb,s):
     print(tb+res.json()['message'])
     if '馈' in res.text:
         requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(精品)请先处理任务消息再来接单!',"content": {'接单账号': phone, '平台网站': 'http://www.taoffd.com'},"template": "json"}), headers={'Content-Type': 'application/json'})
-        send('(精品)请先处理任务消息再来接单!','接单账号：'+phone,'https://pic.iask.cn/fimg/444812179315.jpg')
+        #send('(精品)请先处理任务消息再来接单!','接单账号：'+phone,'https://pic.iask.cn/fimg/444812179315.jpg')
         print(res.json()['message'])
         return 1
     elif '8点' in res.text:
         return 1
     else:return
 
-def send(title,description,img):
-    data ={"touser" : "@all","msgtype" : "news","agentid" : AgentId,"news" : {"articles":[{"title": title,"description": description,"url": 'https://rd.wechat.com/qrcode/confirm?block_type=101&content=任务网站：http://www.taoffd.com%0A接单账号：'+phone+'%0A'+Co,"picurl": img}]},"enable_duplicate_check": 1,"duplicate_check_interval": 3600}
-    access_token = requests.get('https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid='+corpid+'&corpsecret='+Secret).json()['access_token']
-    res = requests.post('https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token='+access_token,data=json.dumps(data))
-    print(res.text)
+# AgentId=''
+# corpid=''
+# Secret=''
+# def send(title,description,img):
+#     data ={"touser" : "@all","msgtype" : "news","agentid" : AgentId,"news" : {"articles":[{"title": title,"description": description,"url": 'https://rd.wechat.com/qrcode/confirm?block_type=101&content=任务网站：http://www.taoffd.com%0A接单账号：'+phone+'%0A'+Co,"picurl": img}]},"enable_duplicate_check": 1,"duplicate_check_interval": 3600}
+#     access_token = requests.get('https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid='+corpid+'&corpsecret='+Secret).json()['access_token']
+#     res = requests.post('https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token='+access_token,data=json.dumps(data))
+#     print(res.text)
 
 def main():
-    print('微信http://qr61.cn/ogpvAF/qtDE2Ly为您提供最高效的精品云函数服务\n当前代码版本：v4.3')
+    print('微信revolfcs为您提供最高效的精品云函数服务\n当前代码版本：v4.4')
     global s,token
     wait_until = datetime.datetime.now() + datetime.timedelta(hours=0.22)
     s = requests.session()
