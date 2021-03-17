@@ -67,7 +67,7 @@ def inf():
         name = li.find('p', class_='bAcount').get_text()
         key = li.find('p', id='copy_key').get_text()
         print(name, key, bj, yj)
-        requests.post('http://pushplus.hxtrip.com/send', data=json.dumps({"token": Token, "title": '(无穷) '+bj+'/'+yj,"content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly">Copyright © 2021 初音ミク</a>':'All rights reserved','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>','店铺名': name,'关键词': key,'注意': '店铺名仅供平台核对任务，找不到商品请联系群客服并提供任务单号协助，请勿使用店铺名直接搜索下单'},"template": "json"}),headers={'Content-Type': 'application/json'})
+        requests.post('http://pushplus.hxtrip.com/send', data=json.dumps({"token": Token, "title": '(无穷子平台) '+bj+'/'+yj,"content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly">Copyright © 2021 初音ミク</a>':'All rights reserved','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>','店铺名': name,'关键词': key,'注意': '店铺名仅供平台核对任务，找不到商品请联系群客服并提供任务单号协助，请勿使用店铺名直接搜索下单'},"template": "json"}),headers={'Content-Type': 'application/json'})
         return
     except:return True
 
