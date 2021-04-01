@@ -7,12 +7,12 @@ def geth():
     for n in range(ys):
         m1 = s.post(url + "get-more-view?uid=" + uid,data="bid=1265&sid_done=0%2C2205%2C2178%2C2090&is_shanghu_done=0&page=" + str(n)).json()
         inf(m1['data'])
-    tplt = '{:4} {:6} {:3} {}'
-    print('是否开始', '任务id', '价格', '开始时间')
+    tplt = '{:6} {:6} {:4} {:4} {}'
+    print('是否开始', '任务id', '价格','平台', '开始时间')
     for i in sorted(y.items(), key=lambda a: a[1]['price'], reverse=True):
-        print(tplt.format(i[1]['allow'], i[0], i[1]['price'], '已开始'))
+        print(tplt.format(i[1]['allow'], i[0], i[1]['price'],i[1]['pt'], '已开始'))
     for i in sorted(w.items(), key=lambda a: a[1]['price'], reverse=True):
-        print(tplt.format(i[1]['allow'], i[0], i[1]['price'], i[1]['time']))
+        print(tplt.format(i[1]['allow'], i[0], i[1]['price'],i[1]['pt'], i[1]['time']))
     return
 
 
@@ -22,16 +22,17 @@ def inf(soup):
         if not i.attrs:
             al = i.a.get_text()
             img = i.find('p', class_="img").img.attrs['src']
+            pt = i.find('p', class_="h3").img.attrs['src'][-6:-4]
             pr = int(i.find('p', class_="h4").get_text()[5:-3])
             if 'data-item_id' in i.a.attrs:
                 id = i.a.attrs['data-item_id']
-                d = {id: {'allow': al, 'price': pr, 'img': img}}
+                d = {id: {'allow': al, 'price': pr, 'pt':pt,'img': img}}
                 y.update(d)
             else:
                 id = i.dd.span.get('data-item_id')
                 ti = int(i.dd.span.get('data-endtime')) + 1
                 t = datetime.datetime.now() + datetime.timedelta(seconds=ti)
-                d = {id: {'allow': al, 'price': pr, 'time': t, 'img': img}}
+                d = {id: {'allow': al, 'price': pr, 'pt':pt, 'time': t, 'img': img}}
                 w.update(d)
 
 def rec(id):
