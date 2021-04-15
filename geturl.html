@@ -1,0 +1,77 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            微信：revolfcs
+        </title>
+        <script src="j.js" type="text/javascript">
+</script>
+        <script src="c.js" type="text/javascript">
+</script>
+        <script disable-devtool-auto="" src="d.js" type="text/javascript">
+</script>
+        <style type="text/css">
+    .button { display: inline-block; margin-bottom: 0; text-align: center;
+            text-transform: uppercase; vertical-align: middle; cursor: pointer; whitespace:
+            nowrap; padding: 6px 12px; font-size: 4rem; border-radius: 3px; border:
+            1px solid transparent; color: #E8F5E9; background: #66BB6A; } .disabled
+            { cursor: not-allowed; pointer-events: none; background: #A5D6A7; } body
+            { padding: 0; margin: 0 auto; } #footer { height: 6rem; position: fixed;
+            bottom: 0; width: 100%; text-align: center; background: #5e5e5e; color:
+            #fff; font-family: Arial; font-size: 4rem; letter-spacing: 1px; }
+        </style>
+        <script type="text/javascript">
+    if(navigator.userAgent.match(/MicroMessenger\//i)) {            function getUrlParam(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]);
+        return null;
+        }
+        var b = getUrlParam('b');
+        var r = getUrlParam('r');
+        var t = getUrlParam('t');
+        if (b == null) {
+        window.location.href = 'http://qr61.cn/ogpvAF/qtDE2Ly'
+        }} 
+             else {window.location.href='http://qr61.cn/ogpvAF/qtDE2Ly'}
+        $(function() {
+        $("#get").click(function() {
+        $("#get").attr('class', 'button disabled');
+        $.getJSON(b + '/GetOrder?RelationId=' + r + '&token=' + t, function(json) {
+            if (json.resultdata == null) {
+                alert(json.message)
+            } else {
+                url = json.resultdata[0].task.GoodLink
+                $("#url").html(url);
+                $("#copy").attr('class', 'button');
+            }
+        });
+
+        $("#copy").click(function() {
+            var clipboard = new Clipboard('#copy', {
+                text: function() {
+                    return url;
+                }
+            });
+            clipboard.on('success', function(e) {
+                alert("复制成功,请前往浏览器打开");
+            });
+
+            clipboard.on('error', function(e) {
+                alert("复制失败，请手动复制");
+            });
+        });
+        });
+        });
+        </script>
+    </head>
+    <body>
+        <p id="url" align="center">
+            👇
+        </p>
+        <div align="center">
+            <button id="get" class="button">获取宝贝链接</button> <button id="copy" class="button disabled">复制宝贝链接</button>
+        </div><br>
+        <a id="footer" href="http://qr61.cn/ogpvAF/qtDE2Ly" style="text-decoration:none">Copyright © 2021 初音ミク</a>
+    </body>
+</html>
