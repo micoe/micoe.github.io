@@ -1,4 +1,4 @@
-import datetime,random,math,pytz,json,time,re
+import multiprocessing,datetime,random,math,pytz,json,time,re
 def allow():
     global BASE,BASE1,IMG_URL
     al = requests.get(folder.replace('lanzous','lanzoui'), headers={'User-Agent': 'yaohuoid34976'}).text
@@ -87,15 +87,29 @@ def generate_random_gps(base_log=None, base_lat=None, radius=None):
     y = w * math.sin(t)
     longitude = y + base_log
     latitude = x + base_lat
-    loga = '%.6f' % longitude
-    lata = '%.6f' % latitude
+    loga = '%.2f' % longitude
+    lata = '%.2f' % latitude
     return loga, lata
 
 def main():
-    global s,Co,tbl,token
     Co = 'Copyright © 2021 初音ミク'
     print('微信revolfcs为您提供最高效的精品云函数服务\n'+Co+'\n当前代码版本：v4.7')
-    wait_until = datetime.datetime.now() + datetime.timedelta(hours=0.236)
+    wait_until = datetime.datetime.now() + datetime.timedelta(hours=0.24)
+    l=[]
+    for i in account:
+        p = multiprocessing.Process(target=go, args=(i['folder'],i['Token'],i['phone'],i['password'],wait_until,Co))
+        l.append(p)
+        p.start()
+    for i in l:
+        i.join()
+        
+def go(a,b,c,d,wait_until,f):
+    global s,phone,password,folder,Token,token,Co
+    folder=a
+    Token=b
+    phone= c
+    password=d
+    Co = f
     s = requests.session()
     n = allow()
     if n:

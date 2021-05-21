@@ -1,9 +1,9 @@
-import datetime, platform,json,math,random,time,os,re
+import datetime, platform,json,random,math,time,os,re
 from bs4 import BeautifulSoup
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 def check():
-    l = BeautifulSoup(s.get(url+'my-renwu?bid=1265&is_yt=0',verify=False).text,'html.parser').find_all('li')
+    l = BeautifulSoup(s.get(url+'my-renwu?bid=145&is_yt=1',verify=False).text,'html.parser').find_all('li')
     for i in l:
         if not i.attrs:
             if 'item_id' in i.a.attrs['href']:
@@ -17,40 +17,36 @@ def check():
                 zd=url[:-8]+i.a.attrs['href']
                 xx=s.get(zd).text
                 if 'map' in xx:
-                    s.post(url[:-8]+'account/save-location',data='back_url=%2Ffangdan%2Fitem-show%3Fis_qd%3D1%26sid%3D'+sid+'%26item_id%3D'+item_id+'&uid='+uid+'&bid=1265&location='+log+'%2C'+lat+'&location_item='+re.search(r'location_item = "\d+"', xx).group()[17:-1])
-                    xx = s.get(zd).text
+                    s.post(url[:-8]+'account/save-location',data='back_url=%2Ffangdan%2Fitem-show%3Fis_qd%3D1%26sid%3D'+sid+'%26item_id%3D'+item_id+'&uid='+uid+'&bid=145&location='+log+'%2C'+lat+'&location_item='+re.search(r'location_item = "\d+"', xx).group()[17:-1])
+                    xx = s.get(zd).text                
+                if 'fushen' in xx:
+                    tb = BeautifulSoup(xx, 'html.parser').find('input', class_="shur").attrs['value']
+                    s.post(url[:-8]+'account/save-fushen',data='back_url=%2Ffangdan%2Fitem-show%3Fis_qd%3D1%26sid%3D'+sid+'%26item_id%3D'+item_id+'&uid='+uid+'&wwid='+tb+'&location='+log+'%2C'+lat+'&location_item='+re.search(r'location_item = "\d+"', xx).group()[17:-1]+'&bid=145&is_recheck=0')
+                    print('接单成功，请耐心等待复审通过后接收任务推送')
+                    while True:
+                        try:
+                            xx = s.get(zd).text
+                            order_id = re.search(r'order_id = "\d+"', xx).group()[12:-1]
+                            break
+                        except:time.sleep(5)
                 order_id = re.search(r'order_id = "\d+"', xx).group()[12:-1]
                 lis=[]
-                for i in BeautifulSoup(s.get(url+'center-new?bid=1265&is_new=0&fangdan_uid='+uid).text, 'html.parser').select('div.top span'):lis.append(re.sub(r'旺.+\n', '',i.get_text().replace(' ', '')))
+                for i in BeautifulSoup(s.get(url+'center-new?bid=145&is_new=0&fangdan_uid='+uid).text, 'html.parser').select('div.top span'):lis.append(re.sub(r'旺.+\n', '',i.get_text().replace(' ', '')))
                 wx=lis[0]
                 tb=lis[1]
-                notice = requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(聚客猫一)金额 ' + str(pr) + ' 旺旺号:' + tb, "content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">' + Co + '</a>': 'All rights reserved','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>', '商品链接': u,'做单网站': '<a href="'+zd+'">查看任务搜索关键词及商家要求</a>', '接单微信': wx,'任务提交':'<a href="https://www.jukemao.net/fangdan/sub-order?order_id='+order_id+'&sid='+sid+'&uid='+uid+'&fx_type=2&send_type=1&son_num=0">跳过上传截图直接提交任务</a>'}, "template": "json"}),headers={'Content-Type': 'application/json'})
-                if notice.json()['code'] == 200:print('接单成功已推送')
-                else:print('接单成功推送失败')
+                notice = requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(聚客猫三)金额 ' + str(pr) + ' 旺旺号:' + tb, "content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">' + Co + '</a>': 'All rights reserved','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>', '商品链接': u,'做单网站': '<a href="'+zd+'">查看任务搜索关键词及商家要求</a>', '接单微信': wx,'任务提交':'<a href="https://www.jukemao.net/fangdan/sub-order?order_id='+order_id+'&sid='+sid+'&uid='+uid+'&fx_type=2&send_type=1&son_num=0">跳过上传截图直接提交任务</a>'}, "template": "json"}),headers={'Content-Type': 'application/json'})
+                if notice.json()['code'] == 200:print('复审成功已推送')
+                else:print('复审成功推送失败')
                 return
     return 1
-
-def generate_random_gps(base_log=None, base_lat=None, radius=None):
-    radius_in_degrees = radius / 111300
-    u = float(random.uniform(0.0, 1.0))
-    v = float(random.uniform(0.0, 1.0))
-    w = radius_in_degrees * math.sqrt(u)
-    t = 2 * math.pi * v
-    x = w * math.cos(t)
-    y = w * math.sin(t)
-    longitude = y + base_log
-    latitude = x + base_lat
-    loga = '%.6f' % longitude
-    lata = '%.6f' % latitude
-    return loga, lata
 
 def geth(k):
     global w,y
     w = {}
     y = {}
-    sidd=re.search(r'sid_done = ".+"', s.get(url+'item-list-view?bid=1265&code=zrtwn5').text).group()[12:-1]
+    sidd=re.search(r'sid_done = ".+"', s.get(url+'item-list-view?bid=145&code=hn1z0c').text).group()[12:-1]
     for n in range(ys):
-        m1 = s.post(url + 'get-more-view?uid=' + uid,data='bid=1265&sid_done='+sidd+'&is_shanghu_done=0&page=' + str(n)).json()
+        m1 = s.post(url + 'get-more-view?uid=' + uid,data='bid=145&sid_done='+sidd+'&is_shanghu_done=0&page=' + str(n)).json()
         inf(m1['data'])
     if k:
         tplt = '{:6} {:6} {:4} {:4} {}'
@@ -73,7 +69,7 @@ def inf(soup):
             if 'data-item_id' in i.a.attrs:
                 id = i.a.attrs['data-item_id']
                 sid =i.a.attrs['data-sid']
-                d = {id: {'allow': al, 'price': pr, 'pt':pt,'sid':sid}}
+                d = {id: {'allow': al,'price': pr,'pt':pt,'sid':sid}}
                 y.update(d)
             else:
                 id = i.dd.span.get('data-item_id')
@@ -84,7 +80,7 @@ def inf(soup):
 
 def rec(id,sid):
     global send
-    send = s.post(url + 'send-data', data='sid='+sid+'&bid=1265&uid=' + uid + '&is_qd=1&item_id=' + id).json()
+    send = s.post(url + 'send-data', data='sid='+sid+'&bid=145&uid=' + uid + '&is_qd=1&item_id=' + id).json()
     if send['code']==200:
         print('\n',send['data'])
         check()
@@ -126,6 +122,20 @@ def gan():
                 geth(1)
                 continue
         else:print('id无效,请重新输入')
+
+def generate_random_gps(base_log=None, base_lat=None, radius=None):
+    radius_in_degrees = radius / 111300
+    u = float(random.uniform(0.0, 1.0))
+    v = float(random.uniform(0.0, 1.0))
+    w = radius_in_degrees * math.sqrt(u)
+    t = 2 * math.pi * v
+    x = w * math.cos(t)
+    y = w * math.sin(t)
+    longitude = y + base_log
+    latitude = x + base_lat
+    loga = '%.6f' % longitude
+    lata = '%.6f' % latitude
+    return loga, lata
 
 def main():
     if check():

@@ -33,10 +33,9 @@ def inf(task_id,order_id):
     u = k['product_url']
     word = k['keywords']
     end = k['end_time']
-    title = k['mode_title']
     p = k['capital']
-    print(p, u, word, end,title)
-    notice=requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(牛易)金额 ' + p +' 旺旺号:'+tb,"content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">'+Co+'</a>':'All rights reserved','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>','商品链接': u, '关键词': word,'标题': title,'做单网站':'<a href="http://a.jsy188.cn">http://a.jsy188.cn</a>','接单账号':phone},"template": "json"}),headers={'Content-Type': 'application/json'})
+    print(p, u, word, end)
+    notice=requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(港仔猫)金额 ' + p +' 旺旺号:'+tb,"content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">'+Co+'</a>':'All rights reserved','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>','商品链接': u, '关键词': word,'结束时间': end,'做单网站':'<a href="http://b.payhoo.cn">http://b.payhoo.cn</a>','接单账号':phone},"template": "json"}),headers={'Content-Type': 'application/json'})
     if notice.json()['code'] == 200:print('接单成功已推送')
     else:print('接单成功推送失败')
     return
@@ -44,7 +43,7 @@ def inf(task_id,order_id):
 def main():
     global s,Co
     Co = 'Copyright © 2021 初音ミク'
-    print('微信revolfcs为您提供最高效的牛易云函数服务\n'+Co+'\n当前代码版本：v1.1')
+    print('微信revolfcs为您提供最高效的港仔猫云函数服务\n'+Co+'\n当前代码版本：v1.0')
     wait_until = datetime.datetime.now() + datetime.timedelta(hours=0.24)
     s = requests.session()
     n=allow()
@@ -55,7 +54,7 @@ def main():
                 try:
                     r = s.get(url + 'task/receive_task_list?page_size=30&page_num=1').json()
                     if r['code']==202:
-                        requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(牛易)请先完成任务消息再来接单!', "content": {'做单网站': '<a href="http://a.jsy188.cn">http://a.jsy188.cn</a>','接单账号': phone}, "template": "json"}), headers={'Content-Type': 'application/json'})
+                        requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(港仔猫)请先完成任务消息再来接单!', "content": {'做单网站': '<a href="http://b.payhoo.cn">http://b.payhoo.cn</a>','接单账号': phone}, "template": "json"}), headers={'Content-Type': 'application/json'})
                         print(r['error_msg'])
                         return
                     if r['result']:
@@ -72,5 +71,5 @@ def main():
                     print('接单即将超时，任务将在下次触发继续执行')
                     return
 
-url = "http://a.jsy188.cn/api/"
+url = "http://a.endlessio.cn/api/"
 main()

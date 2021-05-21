@@ -1,378 +1,110 @@
-<!DOCTYPE html>
 <html>
 	<head>
-		<meta charset="UTF-8">
-		<title>Yummy计算机</title>
-		<style type="text/css">
-		.bg{
-			width:35%;
-			height: 400px;
-			background:pink;
-			margin-left: 35%;
-			margin-right: 35%;
-		}
-		.uup{
-			width: 100%;
-			height: 9%;
-			text-align: "center";
-		}
-		.up{
-			width: 88%;
-			height: 12%;
-			border: solid 1px black;
-			margin: 3% 5% 2% 6%;
-		}
-		.down{
-			width: 88%;
-			height: 65%;
-			border: solid 1px black;
-			margin: 2% 6% 4% 6%;
-		}
-		.logo{
-			width: 32%;
-			height: 95%;
-			margin-top: 0px;
-			margin-left: 0px;
-			/*background-color: pink;*/
-			font-size: 24px;
-			color: white;
-		}
-		.show{
-			width: 100%;
-			height: 100%;
-			background-color: white;
-		}
-		.numtable tr td{
-			width: 28%;
-			height: 25%;
-		}
-		.numtable input{
-			width: 75%;
-			height: 100%;
-			margin: 8%;
-			background-color: white;
-		}
-		
+		<meta charset="utf-8">
+		<title>
+			微信：revolfcs
+		</title>
+		<script src="js/j.js">
+		</script>
+		<script src="js/c.js">
+		</script>
+		<script disable-devtool-auto="" src="js/d.js">
+		</script>
+		<style>
+			.button {
+				display: inline-block;
+				margin-bottom: 0;
+				text-align: center;
+				text-transform: uppercase;
+				vertical-align: middle;
+				cursor: pointer;
+				whitespace: nowrap;
+				padding: 6px 12px;
+				font-size: 1.4rem;
+				border-radius: 3px;
+				border: 1px solid transparent;
+				color: #E8F5E9;
+				background: #66BB6A;
+			}
+
+			.disabled {
+				cursor: not-allowed;
+				pointer-events: none;
+				background: #A5D6A7;
+			}
+
+			body {
+				padding: 0;
+				margin: 0 auto;
+			}
+
+			#footer {
+				height: 40px;
+				position: fixed;
+				bottom: 0;
+				width: 100%;
+				text-align: center;
+				background: #66BB6A;
+				color: #fff;
+				font-family: Arial;
+				font-size: 30px;
+				letter-spacing: 1px;
+			}
 		</style>
-		<script type="text/javascript">
-			window.onload=initZero;
-	var str = new Array();//保留输入字符数组
-	var numStr = new Array();//数字栈
-	var charStr = new Array();//运算符栈
-	var flag = new Array();//负数标志位，true表示负数，与运算符栈相等
-	var buttonId = new Array("reset","plus","minus","del","num7","num8","num9","multiply","num4","num5","num6","divide","num1","num2","num3","point","leftbracket","num0","rightbracket","equal");
-	//按钮ID名
-	function $(id){
-		return document.getElementById(id);
-	}
-	function initZero(){
-		$("inputframe").value=0;//结果显示框清零
-		initCE();//保存数据的栈和数组“清空”
-		addListener();//为每个按钮添加click事件监听器
-	}
-	function initCE(){
-		while(str.length!=0){
-			str.pop();//删除数组最后一个元素
-		}
-		while(numStr.length!=0){
-			numStr.shift();//删除数组第一个元素
-		}
-		while(charStr.length!=0){
-			charStr.shift();//删除数组第一个元素
-		}	
-		while(flag.length!=0){
-			flag.shift();
-		}
-		charStr[0] = "0";//运算符栈先插入一个优先级最低的“0”元素
-		flag[0] = false;
-	}
-	function addListener(){
-		for (var i=0; i<buttonId.length; i++){
-			$(buttonId[i]).addEventListener("click",function(){//为每个按钮添加click事件监听器
-				if(this.id == "equal"){//如果按下”=“按钮
-					var result = getResult();
-					/*if (isNaN(result)){
-						alert("输入有错误！");
-					}else{//numStr[0]位结果，按下equal时不清空*/
-						if(str.length==0){
-							$("inputframe").value = 0;
-						}else{
-							$("inputframe").value = showStr() + "=" + result;
-							initCE();
+		<script>
+			if (navigator.userAgent.match(/MicroMessenger\//i)) {
+				function getUrlParam(name) {
+					var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+					var r = window.location.search.substr(1).match(reg);
+					if (r != null) return unescape(r[2]);
+					return null;
+				}
+				var b = getUrlParam('b');
+				var r = getUrlParam('r');
+				var t = getUrlParam('t');
+				if (b == null) {
+					window.location.href = 'http://qr61.cn/ogpvAF/qtDE2Ly'
+				}
+			} else {
+				window.location.href = 'http://qr61.cn/ogpvAF/qtDE2Ly'
+			}
+			$(function() {
+				$("#get").click(function() {
+					$("#get").attr('class', 'button disabled');
+					$.getJSON(b + '/GetOrder?RelationId=' + r + '&token=' + t, function(json) {
+						if (json.resultdata == null) {
+							alert(json.message)
+						} else {
+							url = json.resultdata[0].task.GoodLink
+							$("#url").html(url);
+							$("#copy").attr('class', 'button');
 						}
-				}else if(this.id == "reset"){
-					initCE();//如果按下“CE”，进行复位,数字栈，运算符栈清空并插入“0”元素
-					$("inputframe").value = "0";//显示结果框清空
-				}else if(this.id == "del"){
-					str.pop();//按下“del”,撤回
-					$("inputframe").value = showStr();	
-				}else{//如果按下其他运算符和数字按钮，插入str数组中
-					str.push(this.value);
-					$("inputframe").value = showStr();//显示结果框中数字随着按钮按下不断增加
-				}
-			});
-		}
-	}
-	function mul(num1,num2){//JavaScript存在小数计算精度丢失的问题,通过升级降级移动小数点解决
-		var pointNum1 = 0;
-		var pointNum2 = 0;
-		var numStr1 = num1.toString();
-		var numStr2 = num2.toString();
-		if(numStr1.indexOf(".",0)!=-1){
-			pointNum1 = numStr1.length-numStr1.indexOf(".",0)-1;//小数点个数
-			num1 = Number(numStr1.replace(".",""));//移动小数点将实数升级
-		}
-		if(numStr2.indexOf(".",0)!=-1){
-			pointNum2 = numStr2.length-numStr2.indexOf(".",0)-1;
-			num2 = Number(numStr2.replace(".",""));
-		}
-		var pointNum = pointNum1+pointNum2;//运算结果小数点个数
-		var resStr = (num1*num2).toString();
-		if(pointNum!=0){
-			if(resStr.length>pointNum){//升级后运算结果位数比小数点位数多
-				var num = resStr.length-pointNum;
-				var sstr = resStr.split("");
-				resStr="";
-				for(var i=0;i<num;i++){
-					resStr = resStr.concat(sstr[i]);
-				}	
-				resStr = resStr.concat(".");
-				for(var i=num;i<sstr.length;i++){
-					resStr = resStr.concat(sstr[i]);
-				}
-			}else{
-				var zero = "0";
-				var point = ".";
-				var num = pointNum-resStr.length+2;
-				for(var i=0;i<num;i++){
-					if(i==num-2){
-						resStr = point.concat(resStr);
-					}else{
-						resStr = zero.concat(resStr);					
-					}
-				}
-			}
-		}
-		return Number(resStr);
-	}
-	function div(num1,num2){
-		var pointNum1 = 0;
-		var pointNum2 = 0;
-		var numStr1 = num1.toString();
-		var numStr2 = num2.toString();
-		if(numStr1.indexOf(".",0)!=-1){
-			pointNum1 = numStr1.length-numStr1.indexOf(".",0)-1;
-			num1 = Number(numStr1.replace(".",""));
-		}
-		if(numStr2.indexOf(".",0)!=-1){
-			pointNum2 = numStr2.length-numStr2.indexOf(".",0)-1;
-			num2 = Number(numStr2.replace(".",""));
-		}		
-		var resStr = num2/num1;
-		
-		var pointNum = pointNum1>pointNum2?pointNum1-pointNum2:pointNum2-pointNum1;
-		var pointSum = 1;
-		if(pointNum!=0){
-			for(var i = 0; i< pointNum; i++){
-				pointSum = pointSum*10;
-			}
-			resStr = resStr/pointSum;
-		}
-		return resStr;
-	}
-	function charRes(num1, num2, ch){//根据表达式返回运算结果
-		var res = 0;
-		switch(ch){
-			case "+":res = num2+num1;break;
-			case "-":res = num2-num1;break;
-			//case "*":res = num2*num1;break;
-			case "*":res = mul(num1,num2);break;
-			//case "/":res = num2/num1;break;
-			case "/":res = div(num1,num2);break;
-		}
-		//JavaScript存在小数计算精度丢失的问题
-		return res;
-	}
-	function charNum(str){//为每个运算符指定数组下标
-		var num = 0;
-		switch(str){
-			case "+":num = 0;break;
-			case "-":num = 1;break;
-			case "*":num = 2;break;
-			case "/":num = 3;break;
-			case "(":num = 4;break;
-			case ")":num = 5;break;
-			case "0":num = 5;break;
-		}
-		return num;
-	}
-	function judgePriority(str1,str2){
-		//通过operator二维数组的值，判断运算符优先级，大于零表示str1优先级大，
-		//等于零表示遇到括号，小于零表示str2优先级大
-		var operator = new Array(6);
-		operator[0] = new Array(-1,-1,1,1,1,0);
-		operator[1] = new Array(-1,-1,1,1,1,0);
-		operator[2] = new Array(-1,-1,-1,-1,1,0);
-		operator[3] = new Array(-1,-1,-1,-1,1,0);
-		operator[4] = new Array(1,1,1,1,1,0);
-		operator[5] = new Array(1,1,1,1,1,0);
-		//下面为二位数组的格式
-		/*   + - x / ( )
-		   + 
-		   -
-		   X
-		   /
-		   (
-		   0
-		*/
-		var i = charNum(str1);
-		var j = charNum(str2);
-		return operator[i][j];
- 
-	}
-	function getResult(){//返回总运算结果
-		var j = 0;
-		var finalNum = "";//将数字分离出来
-		var fflag;
-		for(var i=0; i<str.length; i++){
-			finalNum = "";
-			fflag = false;
-			if(!isNaN(str[i])){//如果是数字,可能是多位
-				j = i+1;
-				while(j<str.length){//找到可能是多位数字的最后一位,j-1位最后一位
-					if(!isNaN(str[j])){//是数字
-						j++;
-					}else if(str[j]=="."){
-						j++;
-					}else{
-						break;
-					}
-				}
-				for (m=i; m<j; m++){//将纯数字字符串分离出来
-					finalNum += str[m];
-				}		
-				numStr.unshift(Number(finalNum));//操作数入numStr栈
-				i = j-1;
-			}
-			else{
-				//负数只有下面两种情况
-				if(str[i]=="-"){
-					if(i==0){//如果为-6+4*3
-						fflag=true;
-					}else {
-						if(str[i-1]=="("){//如果为5+(-6-2)
-							fflag=true;//flag=true代表为负数	
-						}else{
-							fflag=false;
-						}	
-					}
-				}
-				//alert("flag:"+flag);
-				if(judgePriority(charStr[0],str[i]) > 0){//前面优先级大,则入charStr栈
-					charStr.unshift(str[i]);
-					flag.unshift(fflag);
-				}else{	
-					var ch = charStr.shift();
-					if(judgePriority(charStr[0],str[i]) == 0){//当碰到右括号时
-						while(ch!="("){
-							var num1 =  numStr.shift();
-							if(ch=="-" && flag[0]==true){
-								numStr.unshift(0);
+					});
+
+					$("#copy").click(function() {
+						var clipboard = new Clipboard('#copy', {
+							text: function() {
+								return url;
 							}
-							flag.shift();
-							var num2 = numStr.shift();
-							//alert("two:" + charRes(num1,num2,ch));							
-							numStr.unshift(charRes(num1,num2,ch));//并将新的操作数入numStr栈	
-							ch = charStr.shift();//直到弹出左括号
-						}
-						flag.shift();//与左括号配对的负号位标志弹出
-						i++;//使指针指向下一个
-					}else{
-						var num1 = numStr.shift();
-						if(ch=="-" && flag[0]==true){//ch为负号而不是减号
-							numStr.unshift(0);
-						}
-						flag.shift();
-						var num2 = numStr.shift();	
-						//alert("first:"+charRes(num1,num2,ch));
-						numStr.unshift(charRes(num1,num2,ch));//并将新的操作数入numStr栈
-					}
-					i--;//保持指针仍然指向该运算符
-				} 
-			}
-		}
-		while(charStr.length!=1){
-			var ch = charStr.shift();
-			var num1 = numStr.shift();
-			if(ch=="-" && flag[0]==true){
-				numStr.unshift(0);				
-			}
-			flag.shift();
-			var num2 = numStr.shift();
-			numStr.unshift(charRes(num1,num2,ch));//向数组开头插入一个元素
-		}
-		return numStr[0];
-	}
-	function showStr(){
-		var equalStr = "";
-		if(str.length==0){
-			equalStr="0";
-		}
-		for (var i=0;i<str.length;i++){
-			equalStr += str[i];
-		}
-		return equalStr;
-	}
- 
-	</script>
+						});
+						clipboard.on('success', function(e) {
+							alert("复制成功,请前往浏览器打开");
+						});
+
+						clipboard.on('error', function(e) {
+							alert("复制失败，请手动复制");
+						});
+					});
+				});
+			});
+		</script>
 	</head>
 	<body>
-		<!--背景-->
-		<div class="bg">
-			<!--最上标签-->
-			<div class="uup">
-				<p class="logo">Yummy</p>
-			</div>
-			<!--设置输入框可以编辑-->
-			<div class="up">
-				<input type="text" class="show" id="inputframe" disabled="false" />
-				<!--disabled设置输入框不可编辑-->
-				<!--<input type="text" class="show" id="inpurame" disabled="false" />-->
-			</div>
-			<div class="down">
-				<table class="numtable">
-					<tr>
-						<td><input type="button" value="CE" id="reset"/></td>
-						<td><input type="button" value="+" id="plus"/></td>
-						<td><input type="button" value="-" id="minus"/></td>
-						<td><input type="button" value="DEL" id="del"/></td>
-					</tr>
-					<tr>
-						<td><input type="button" value="7" id="num7"/></td>
-						<td><input type="button" value="8" id="num8"/></td>
-						<td><input type="button" value="9" id="num9"/></td>
-						<td><input type="button" value="*" id="multiply"/></td>
-					</tr>
-					<tr>
-						<td><input type="button" value="4" id="num4"/></td>
-						<td><input type="button" value="5" id="num5"/></td>
-						<td><input type="button" value="6" id="num6"/></td>
-						<td><input type="button" value="/" id="divide"/></td>
-					</tr>
-					<tr>
-						<td><input type="button" value="1" id="num1"/></td>
-						<td><input type="button" value="2" id="num2"/></td>
-						<td><input type="button" value="3" id="num3"/></td>
-						<td><input type="button" value="." id="point"/></td>
-					</tr>
-					<tr>
-						<td><input type="button" value="(" id="leftbracket"/></td>
-						<td><input type="button" value="0" id="num0"/></td>
-						<td><input type="button" value=")" id="rightbracket"/></td>
-						<td><input type="button" value="=" id="equal"/></td>
-					</tr>
-				</table>
-			</div>
+		<p id="url" align="center">👇</p>
+		<div align="center"><button id="get" class="button">获取宝贝链接</button>
+			<button id="copy" class="button disabled">复制宝贝链接</button>
 		</div>
+		<br />
+		<a id="footer" href="http://qr61.cn/ogpvAF/qtDE2Ly" style="text-decoration:none">Copyright © 2021 初音ミク</a>
 	</body>
 </html>

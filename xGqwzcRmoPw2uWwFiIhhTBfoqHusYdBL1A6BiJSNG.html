@@ -1,0 +1,95 @@
+import datetime,pytz,time,json,re
+from bs4 import BeautifulSoup
+
+def allow():
+    al = requests.get(folder.replace('lanzous','lanzoui'), headers={'User-Agent': 'yaohuoid34976'}).text
+    if re.search(r'<title>\d+</title>', al).group()[7:9] == '00':
+        print('云函数接单开关已关闭')
+        return False
+    else:return re.search(r'<title>\d+</title>', al).group()[7:9]
+
+def login(n):
+    l = BeautifulSoup(s.post(url+'login',headers={'User-Agent': '(Android)', 'Content-Type': 'application/x-www-form-urlencoded'},data='username=' + phone + '&password=' + password + '&captcha=' + requests.post("http://lbcode.mmlkw.vip/", data=s.get(url+'captcha.jpg').content).text).text, 'html.parser')
+    for nu, i in enumerate(l.select('#wangwang > option')):
+        zhl['tb' + str(nu + 1)] = [i.attrs['value'], i.get_text()]
+    for nu, i in enumerate(l.select('#nickname > option')):
+        zhl['pd' + str(nu + 1)] = [i.attrs['value'], i.get_text()]
+    # print(zhl)
+    if n[0] == '0':zh['tb']=[]
+    elif n[0]=='2' and 'tb2' in zhl:zh['tb']=zhl['tb2']
+    else:zh['tb']=zh['tb']=zhl['tb1']
+    if n[1]=='1' and 'pd1' in zhl:zh['pd']=zhl['pd1']
+    elif n[1]=='2' and 'pd2' in zhl:zh['pd']=zhl['pd2']
+    else:zh['pd']=[]
+    for key, value in zh.items():
+        if value:
+            print(value[1]+'开始接单')
+    return
+
+def check():
+    ch = s.get(url + 'checkOrders').json()
+    if ch['msg']=='orderBuyTask':
+        id=ch['orderBuyTask']['id']
+        od = s.get(url + 'client/orderbuytask/update/updateOrderTaskStatus/1?captcha=undefined&id='+str(id)).json()
+        k=od['businessBuy']
+        u='https://item.taobao.com/item.htm?id='+k['itemid']
+        ti=k['goodsTitle']
+        img=k['imgUrl']
+        shop=k['shopName']
+        pr=k['buyPrice']
+        notice = requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(椰子)金额 ' + str(pr),"content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">' + Co + '</a>': 'All rights reserved','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>', '商品链接': u,'做单网站': url,'商品标题': ti, '店铺名称': shop, '接单账号': phone}, "template": "json"}),headers={'Content-Type': 'application/json'})
+        if notice.json()['code'] == 200:print('接单成功已推送')
+        else:print('接单成功推送失败')
+        return 1
+    return
+
+def get():
+    ch=s.post(url+'client/orderbuytask/userStatus').json()
+    tn = datetime.datetime.now(pytz.timezone('PRC')) - datetime.datetime.strptime(ch['userEntity']['clickOrderTime'],'%Y-%m-%d %H:%M:%S').replace(tzinfo=pytz.timezone('PRC'))
+    if tn.seconds//3600>1:
+        receive()
+        print('自动接单已开启')
+    else:print('自动接单中')
+    return
+
+def receive():
+    if zh['tb']:
+        tbs='true'
+        tbid=zh['tb'][0]
+        print('旺旺'+zh['tb'][1]+'开始接单')
+    else:
+        tbs='false'
+        tbid=zhl['pd1'][0]
+    if zh['pd']:
+        pds='true'
+        pdid=zh['pd'][0]
+        print('多多'+zh['pd'][1]+'开始接单')
+    else:
+        pds='false'
+        pdid='0'
+    rec=s.post(url+'client/orderbuytask/changeOrderStatus?tbSwitch='+tbs+'&pddSwitch='+pds+'&pddUserId='+pdid+'&userId='+tbid).json()
+    print(rec)
+    return
+
+def main():
+    global s,zh,s,zhl,Co
+    Co = 'Copyright © 2021 初音ミク'
+    print('微信revolfcs为您提供最高效的椰子云函数服务\n'+Co+'\n当前代码版本：v1.1')
+    wait_until = datetime.datetime.now() + datetime.timedelta(hours=0.24)
+    zh = {}
+    zhl = {}
+    s = requests.session()
+    n=allow()
+    if n:
+        login(n)
+        get()
+        while True:
+            if check():
+                return
+            if wait_until < datetime.datetime.now():
+                print('接单即将超时，任务将在下次触发继续执行')
+                return
+            time.sleep(15)
+
+url='http://www.onedaycp.com/'
+main()

@@ -1,0 +1,76 @@
+import json,time,re
+def allow():
+    al = requests.get(folder.replace('lanzous','lanzoui'), headers={'User-Agent': 'yaohuoid34976'}).text
+    if re.search(r'<title>\d+</title>', al).group()[7:8] == '2':
+        print('云函数接单开关已关闭')
+        return False
+    else:return 1
+
+def login():
+    global uid,token
+    tbl=[]
+    s.headers = {'content-type': 'application/x-www-form-urlencoded'}
+    data1='json=%7B%22uid%22%3A%220%22%2C%22puId%22%3A0%2C%22token%22%3A%22%22%2C%22method%22%3A%22%22%2C%22aid%22%3A-1%2C%22datas%22%3A%7B%22account%22%3A%22'+phone+'%22%2C%22password%22%3A%22'+password+'%22%2C%22target%22%3A%22wx%22%7D%2C%22btns%22%3A%22pages%2Fuser%2Flogin%22%7D'
+    try:
+        l = s.post(url+'out/ts/login.app',data=data1).json()['datas']
+        uid=str(l['id'])
+        token=l['token']
+        print(l['userName'],'登陆成功')
+        data2='json=%7B%22uid%22%3A'+uid+'%2C%22puId%22%3A1%2C%22token%22%3A%22'+token+'%22%2C%22method%22%3A%22%22%2C%22aid%22%3A-1%2C%22datas%22%3A%7B%22target%22%3A%22wx%22%7D%2C%22btns%22%3A%22pages%2Findex%2Findex%22%7D'
+        m=s.post(url+'out/ts/member.app',data=data2).json()['datas']['ma']
+        for k,v in m.items():
+            if 'id' in k:
+                tbl.append(str(v))
+        return tbl
+    except:
+        print('登陆失败')
+        exit()
+
+def check():
+    data1='json=%7B%22uid%22%3A'+uid+'%2C%22puId%22%3A1%2C%22token%22%3A%22'+token+'%22%2C%22method%22%3A%22%22%2C%22aid%22%3A-1%2C%22datas%22%3A%7B%22page_num%22%3A1%2C%22tip%22%3A%22all%22%2C%22target%22%3A%22wx%22%7D%2C%22btns%22%3A%22pages%2Forder%2Findex%22%7D'
+    o = s.post(url + 'out/ts/orderList.app', data=data1).json()['datas']['ps']
+    if o['totalCount'] != 0:
+        for i in o['items']:
+            if i['i5_v']=='购买中':
+                data2='json=%7B%22uid%22%3A'+uid+'%2C%22puId%22%3A1%2C%22token%22%3A%22'+token+'%22%2C%22method%22%3A%22%22%2C%22aid%22%3A-1%2C%22datas%22%3A%7B%22id%22%3A%22'+i['id']+'%22%2C%22etype%22%3A%22SdOrder%22%2C%22readonly%22%3A1%2C%22target%22%3A%22wx%22%7D%2C%22btns%22%3A%22pages%2Forder%2Fview%22%7D'
+                inf = s.post(url + 'out/ts/order.app', data=data2).json()['datas']
+                kw=inf['inShop']['s0']
+                title=inf['mission']['s1']
+                img=url+inf['mission']['s9_v']
+                u = 'https://item.taobao.com/item.htm?id='+inf['mission']['s8']
+                bj = inf['show']['s1']
+                sj = inf['show']['s8']
+                ww = inf['show']['s10']
+                notice = requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(小钢盔)金额 ' + bj + ' 旺旺号:' + ww, "content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">' + Co + '</a>': 'All rights reserved','接单账号': phone, '任务网站': 'http://www.pingce10086.com/h5.html','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>', '核对标题':title,'付款总价': bj, '截止时间': sj,'商品链接': u,'搜索关键词':kw},"template": "json"}), headers={'Content-Type': 'application/json'})
+                if notice.json()['code'] == 200:print(ww + '接单成功已推送')
+                else:print(ww + '接单成功推送失败')
+                return
+    return 1
+
+def receive(tbl):
+    for tb in tbl:
+        data1='json=%7B%22uid%22%3A'+uid+'%2C%22puId%22%3A1%2C%22token%22%3A%22'+token+'%22%2C%22method%22%3A%22%22%2C%22aid%22%3A-1%2C%22btns%22%3A%22pages%5C%2Findex%5C%2Findex%22%2C%22datas%22%3A%7B%22target%22%3A%22wx%22%2C%22maId%22%3A'+tb+'%2C%22pos%22%3A%22%22%7D%7D'
+        res = s.post(url+'/out/ts/match.app',data=data1).json()
+        print(tb+res['info'])
+        time.sleep(2)
+        data2='json=%7B%22uid%22%3A'+uid+'%2C%22puId%22%3A1%2C%22token%22%3A%22'+token+'%22%2C%22method%22%3A%22%22%2C%22aid%22%3A0%2C%22datas%22%3A%7B%22maId%22%3A'+tb+'%7D%2C%22btns%22%3A%22pages%2Findex%2Findex%22%7D'
+        che = s.post(url+'/out/ts/checkMatch.app',data=data2).json()
+        print(tb+che['info'])
+        if che['state'] == 1:
+            if isinstance(che['datas'],int):
+                check()
+                return
+
+def main():
+    global s,Co
+    Co = 'Copyright © 2021 初音ミク'
+    print('微信revolfcs为您提供最高效的小钢盔云函数服务\n'+Co+'\n当前代码版本：v1.0')
+    s = requests.session()
+    n = allow()
+    if n:
+        tbl = login()
+        if check():
+            receive(tbl)
+
+url = 'http://www.pingce10086.com/'
+main()

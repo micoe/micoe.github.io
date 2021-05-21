@@ -1,4 +1,4 @@
-import datetime,json,time,pytz,re
+import multiprocessing,datetime,json,time,pytz,re 
 
 def allow():
     al = requests.get(folder.replace('lanzous','lanzoui'), headers={'User-Agent': 'yaohuoid34976'}).text
@@ -29,9 +29,8 @@ def check():
                 inf(i['id'])
                 return
             if i['status'] == 50:
-                if i['taobao_wangwang_id'] == tb:
-                    print(tb+'近两日已接过任务，请切换旺旺或在上次完成任务后隔一天再来接单')
-                    return
+                print('近两日已接过任务，请在上次完成任务后隔一天再来接单')
+                return
     return 1
 
 def inf(id):
@@ -51,10 +50,25 @@ def inf(id):
     return
 
 def main():
-    global s,Co
+    global Co
     Co = 'Copyright © 2021 初音ミク'
     print('微信revolfcs为您提供最高效的爱淘云函数服务\n'+Co+'\n当前代码版本：v1.1')
     wait_until = datetime.datetime.now() + datetime.timedelta(hours=0.24)
+    l=[]
+    for i in account:
+        p = multiprocessing.Process(target=go, args=(i['folder'],i['Token'],i['phone'],i['password'],wait_until,Co))
+        l.append(p)
+        p.start()
+    for i in l:
+        i.join()
+
+def go(a,b,c,d,wait_until,f):
+    global s,phone,password,folder,Token,Co
+    folder=a
+    Token=b
+    phone= c
+    password=d
+    Co = f
     s = requests.session()
     n=allow()
     if n:
@@ -75,6 +89,6 @@ def main():
                 if wait_until < datetime.datetime.now():
                     print('接单即将超时，任务将在下次触发继续执行')
                     return
-
+                    
 url = "http://a.wodemaone.com/apic/"
 main()
