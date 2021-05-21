@@ -1,18 +1,64 @@
-import datetime, platform,json, time,os
+import datetime, platform,json,math,random,time,os,re
 from bs4 import BeautifulSoup
-def geth():
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+def check():
+    l = BeautifulSoup(s.get(url+'my-renwu?bid=1265&is_yt=0',verify=False).text,'html.parser').find_all('li')
+    for i in l:
+        if not i.attrs:
+            if 'item_id' in i.a.attrs['href']:
+                img = i.find('p', class_="img").img.attrs['src']
+                pr = int(i.find('p', class_="h4").get_text()[5:-3])
+                item_id=re.search(r"item_id=\d+", i.a.attrs['href']).group()[8:]
+                u = 'https://item.taobao.com/item.htm?id=' + re.search(r"num_iid = '\d+'", s.get(url + 'item-check?item_id=' + item_id).text).group()[11:-1]
+                print(u)
+                sid = re.search(r'sid=\d+', i.a.attrs['href']).group()[4:]
+                log, lat = generate_random_gps(base_log=115.00, base_lat=28.00, radius=50000)
+                zd=url[:-8]+i.a.attrs['href']
+                xx=s.get(zd).text
+                if 'map' in xx:
+                    s.post(url[:-8]+'account/save-location',data='back_url=%2Ffangdan%2Fitem-show%3Fis_qd%3D1%26sid%3D'+sid+'%26item_id%3D'+item_id+'&uid='+uid+'&bid=1265&location='+log+'%2C'+lat+'&location_item='+re.search(r'location_item = "\d+"', xx).group()[17:-1])
+                    xx = s.get(zd).text
+                order_id = re.search(r'order_id = "\d+"', xx).group()[12:-1]
+                lis=[]
+                for i in BeautifulSoup(s.get(url+'center-new?bid=1265&is_new=0&fangdan_uid='+uid).text, 'html.parser').select('div.top span'):lis.append(re.sub(r'旺.+\n', '',i.get_text().replace(' ', '')))
+                wx=lis[0]
+                tb=lis[1]
+                notice = requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(聚客猫一)金额 ' + str(pr) + ' 旺旺号:' + tb, "content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">' + Co + '</a>': 'All rights reserved','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>', '商品链接': u,'做单网站': '<a href="'+zd+'">查看任务搜索关键词及商家要求</a>', '接单微信': wx,'任务提交':'<a href="https://www.jukemao.net/fangdan/sub-order?order_id='+order_id+'&sid='+sid+'&uid='+uid+'&fx_type=2&send_type=1&son_num=0">跳过上传截图直接提交任务</a>'}, "template": "json"}),headers={'Content-Type': 'application/json'})
+                if notice.json()['code'] == 200:print('接单成功已推送')
+                else:print('接单成功推送失败')
+                return
+    return 1
+
+def generate_random_gps(base_log=None, base_lat=None, radius=None):
+    radius_in_degrees = radius / 111300
+    u = float(random.uniform(0.0, 1.0))
+    v = float(random.uniform(0.0, 1.0))
+    w = radius_in_degrees * math.sqrt(u)
+    t = 2 * math.pi * v
+    x = w * math.cos(t)
+    y = w * math.sin(t)
+    longitude = y + base_log
+    latitude = x + base_lat
+    loga = '%.6f' % longitude
+    lata = '%.6f' % latitude
+    return loga, lata
+
+def geth(k):
     global w,y
     w = {}
     y = {}
+    sidd=re.search(r'sid_done = ".+"', s.get(url+'item-list-view?bid=1265&code=zrtwn5').text).group()[12:-1]
     for n in range(ys):
-        m1 = s.post(url + "get-more-view?uid=" + uid,data="bid=1265&sid_done=0%2C2205%2C2178%2C2090&is_shanghu_done=0&page=" + str(n)).json()
+        m1 = s.post(url + 'get-more-view?uid=' + uid,data='bid=1265&sid_done='+sidd+'&is_shanghu_done=0&page=' + str(n)).json()
         inf(m1['data'])
-    tplt = '{:6} {:6} {:4} {:4} {}'
-    print('是否开始', '任务id', '价格','平台', '开始时间')
-    for i in sorted(y.items(), key=lambda a: a[1]['price'], reverse=True):
-        print(tplt.format(i[1]['allow'], i[0], i[1]['price'],i[1]['pt'], '已开始'))
-    for i in sorted(w.items(), key=lambda a: a[1]['price'], reverse=True):
-        print(tplt.format(i[1]['allow'], i[0], i[1]['price'],i[1]['pt'], i[1]['time']))
+    if k:
+        tplt = '{:6} {:6} {:4} {:4} {}'
+        print('是否开始', '任务id', '价格','平台', '开始时间')
+        for i in sorted(y.items(), key=lambda a: a[1]['price'], reverse=True):
+            print(tplt.format(i[1]['allow'], i[0], i[1]['price'],i[1]['pt'], '已开始'))
+        for i in sorted(w.items(), key=lambda a: a[1]['price'], reverse=True):
+            print(tplt.format(i[1]['allow'], i[0], i[1]['price'],i[1]['pt'], i[1]['time']))
     return
 
 
@@ -21,25 +67,27 @@ def inf(soup):
     for i in l:
         if not i.attrs:
             al = i.a.get_text()
-            img = i.find('p', class_="img").img.attrs['src']
+            #img = i.find('p', class_="img").img.attrs['src']
             pt = i.find('p', class_="h3").img.attrs['src'][-6:-4]
             pr = int(i.find('p', class_="h4").get_text()[5:-3])
             if 'data-item_id' in i.a.attrs:
                 id = i.a.attrs['data-item_id']
-                d = {id: {'allow': al, 'price': pr, 'pt':pt,'img': img}}
+                sid =i.a.attrs['data-sid']
+                d = {id: {'allow': al, 'price': pr, 'pt':pt,'sid':sid}}
                 y.update(d)
             else:
                 id = i.dd.span.get('data-item_id')
                 ti = int(i.dd.span.get('data-endtime')) + 1
                 t = datetime.datetime.now() + datetime.timedelta(seconds=ti)
-                d = {id: {'allow': al, 'price': pr, 'pt':pt, 'time': t, 'img': img}}
+                d = {id: {'allow': al,'price':pr,'pt':pt,'time':t}}
                 w.update(d)
 
-def rec(id):
+def rec(id,sid):
     global send
-    send = s.post(url + 'send-data', data='sid=2213&bid=1265&uid=' + uid + '&is_qd=1&item_id=' + id).json()
+    send = s.post(url + 'send-data', data='sid='+sid+'&bid=1265&uid=' + uid + '&is_qd=1&item_id=' + id).json()
     if send['code']==200:
         print('\n',send['data'])
+        check()
         return True
     else:return
 
@@ -48,12 +96,12 @@ def gan():
         id = input('请输入待抢任务id\n')
         if id in y:
             print('您选择的任务金额为',y[id]['price'])
-            if rec(id):break
+            if rec(id,y[id]['sid']):break
             else:
                 if platform.system().lower() == 'windows':os.system("cls")
                 else:os.system("clear")
-                print(Co,send['data'],'请重新输入一个任务id')
-                geth()
+                print(send['data'],'请重新输入一个任务id')
+                geth(1)
                 continue
         elif id in w:
             print('您选择的任务金额为', w[id]['price'])
@@ -62,26 +110,34 @@ def gan():
                 wait = (w[id]['time'] - datetime.datetime.now()).seconds
                 print('\r等待' + str(wait) + '秒' + '开抢', end='')
                 time.sleep(1)
-            if rec(id):break
+            geth(0)
+            if id in y:
+                if rec(id,y[id]['sid']):break
+                else:
+                    if platform.system().lower() == 'windows':os.system("cls")
+                    else:os.system("clear")
+                    print(send['data'],'请重新输入一个任务id')
+                    geth(1)
+                    continue
             else:
                 if platform.system().lower() == 'windows':os.system("cls")
                 else:os.system("clear")
-                print(Co,send['data'],'请重新输入一个任务id')
-                geth()
+                print('该任务已被他人抢走或更改开抢时间')
+                geth(1)
                 continue
         else:print('id无效,请重新输入')
 
 def main():
-    global ys
-    ys=int(input('请输入需要获取的页数'))
-    geth()
-    gan()
-    input('抢单完成，按回车键退出')
+    if check():
+        global ys
+        ys=int(input('请输入需要获取的页数'))
+        geth(1)
+        gan()
+        input('抢单完成，按回车键退出')
 
 url = "https://www.jukemao.net/fangdan/"
-Co='Copyright © 2021 初音ミク All rights reserved\n'
+Co='Copyright © 2021 初音ミク'
 print(Co)
 s = requests.session()
-Cookie = PHPSESSID + ';' + 'back_url=%2Ffangdan%2Fcenter-new%3Fbid%3D1265%26is_new%3D0%26fangdan_uid%3D' + uid + ';uid=' + uid
-s.headers = {'User-Agent': 'MicroMessenger/', 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8','Cookie': Cookie}
+s.headers = {'User-Agent': 'MicroMessenger/', 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8','Cookie': 'PHPSESSID='+PHPSESSID+';back_url=fangdan_uid%3D' + uid + ';uid=' + uid}
 main()
