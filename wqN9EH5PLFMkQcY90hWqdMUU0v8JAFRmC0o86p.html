@@ -2,7 +2,7 @@ import datetime,time,re,json,pytz
 from bs4 import BeautifulSoup
 
 def allow():
-    al = requests.get(folder, headers={'User-Agent': 'yaohuoid34976'}).text
+    al = requests.get(folder.replace('lanzous','lanzoui'), headers={'User-Agent': 'yaohuoid34976'}).text
     if re.search(r'<title>\d+</title>', al).group()[7:10] == '000':
         print('云函数接单开关已关闭')
         return False
@@ -68,7 +68,7 @@ def inf():
         name = li.find('p', class_='bAcount').get_text()
         key = li.find('p', id='copy_key').get_text()
         print(name, key, bj, yj)
-        notice=requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(无穷子平台) '+bj+'/'+yj,"content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly">'+Co+'</a>':'All rights reserved','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>','店铺名': name,'关键词': key,'做单链接':zdurl,'注意': '店铺名仅供平台核对任务，找不到商品请联系群客服并提供任务单号协助，请勿使用店铺名直接搜索下单'},"template": "json"}),headers={'Content-Type': 'application/json'})
+        notice=requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(无穷子平台) '+bj+'/'+yj,"content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">'+Co+'</a>':'All rights reserved','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>','店铺名': name,'关键词': key,'做单链接':zdurl,'注意': '店铺名仅供平台核对任务，找不到商品请联系群客服并提供任务单号协助，请勿使用店铺名直接搜索下单'},"template": "json"}),headers={'Content-Type': 'application/json'})
         if notice.json()['code'] == 200:print('接单成功已推送')
         else:print('接单成功推送失败')
         return
@@ -96,5 +96,5 @@ def main():
                         print(c,'接单即将超时，任务将在下次触发继续执行')
                         return
 
-url = 'http://ffff.yycangming.club/home/s_task/'
+url = 'http://ffff.yycangming.club:8888/home/s_task/'
 main()
