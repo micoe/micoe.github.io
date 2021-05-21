@@ -1,7 +1,7 @@
 import datetime,json,time,pytz,re
 
 def allow():
-    al = requests.get(folder, headers={'User-Agent': 'yaohuoid34976'}).text
+    al = requests.get(folder.replace('lanzous','lanzoui'), headers={'User-Agent': 'yaohuoid34976'}).text
     if re.search(r'<title>\d+</title>', al).group()[7:8] == '2':
         print('云函数接单开关已关闭')
         return False
@@ -18,9 +18,13 @@ def login():
 def check():
     o = s.get(url + 'order/list').json()
     for i in o['data']['data']:
-        c = (datetime.datetime.now(pytz.timezone('PRC')) - datetime.datetime.strptime(i['update_time'],'%Y-%m-%d %H:%M:%S').replace(tzinfo=pytz.timezone('PRC'))).days
+        if i['show_status']==1:
+            requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(爱淘)您有任务需要好评截图!',"content": {'做单网站': '<a href="http://a.wodemaone.com">http://a.wodemaone.com</a>', '接单账号': phone},"template": "json"}), headers={'Content-Type': 'application/json'})
+            print('(爱淘)您有任务需要好评截图!')
+            return
+        c = (datetime.datetime.now(pytz.timezone('PRC')).date() - datetime.datetime.strptime(i['create_time'],'%Y-%m-%d %H:%M:%S').replace(tzinfo=pytz.timezone('PRC')).date()).days
         if c < 2:
-            if i['status'] == 20:
+            if i['status'] == 20 or i['status'] == 10:
                 print('您有待完成的任务')
                 inf(i['id'])
                 return
@@ -41,7 +45,7 @@ def inf(id):
     title = k['goods_name']
     p = k['order_price']
     print(tb,p, name, word,title, u)
-    notice=requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(爱淘)金额 ' + p +' 旺旺号:'+tb,"content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly">'+Co+'</a>':'All rights reserved','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>','商品链接': u,'做单网站':'<a href="http://a.wodemaone.com">http://a.wodemaone.com</a>', '关键词': word,'商品标题': title,'店铺名称': name},"template": "json"}),headers={'Content-Type': 'application/json'})
+    notice=requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(爱淘)金额 ' + p +' 旺旺号:'+tb,"content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">'+Co+'</a>':'All rights reserved','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>','商品链接': u,'做单网站':'<a href="http://a.wodemaone.com">http://a.wodemaone.com</a>', '关键词': word,'商品标题': title,'店铺名称': name,'接单账号':phone},"template": "json"}),headers={'Content-Type': 'application/json'})
     if notice.json()['code'] == 200:print('接单成功已推送')
     else:print('接单成功推送失败')
     return
@@ -49,7 +53,7 @@ def inf(id):
 def main():
     global s,Co
     Co = 'Copyright © 2021 初音ミク'
-    print('微信revolfcs为您提供最高效的爱淘云函数服务\n'+Co+'\n当前代码版本：v1.0')
+    print('微信revolfcs为您提供最高效的爱淘云函数服务\n'+Co+'\n当前代码版本：v1.1')
     wait_until = datetime.datetime.now() + datetime.timedelta(hours=0.24)
     s = requests.session()
     n=allow()
@@ -58,7 +62,7 @@ def main():
         if check():
             while True:
                 try:
-                    r = s.get(url + 'taskRecord/list').json()
+                    r = s.post(url + 'taskRecord/list',data=json.dumps({'t':s.post(url+'conf/getH5Conf').json()['data']['t']})).json()
                     if r['code'] == 1:
                         for i in r['data']['data']:
                             rec = s.post(url + 'taskRecord/claim', data=json.dumps({'taskRecordId': i['id']})).json()
