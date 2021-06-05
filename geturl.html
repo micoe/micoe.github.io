@@ -41,8 +41,11 @@
             if (json.resultdata == null) {
                 alert(json.message)
             } else {
-                url = json.resultdata[0].task.GoodLink
+                url = json.resultdata[0].task.GoodLink;
+                pic = json.resultdata[0].task.ImgPath;
                 $("#url").html(url);
+				$("#pic").attr('src', pic);
+                $("#pic").attr('width', '100%');
                 $("#copy").attr('class', 'button');
             }
         });
@@ -66,9 +69,8 @@
         </script>
     </head>
     <body>
-        <p id="url" align="center">
-            👇
-        </p>
+        <img id="pic" src="" alt="商品主图" width="1"/>
+        <p id="url" align="center">👇</p>
         <div align="center">
             <button id="get" class="button">获取宝贝链接</button> <button id="copy" class="button disabled">复制宝贝链接</button>
         </div><br>
