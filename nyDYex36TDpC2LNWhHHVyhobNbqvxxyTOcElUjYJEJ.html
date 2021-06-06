@@ -17,7 +17,7 @@ def check():
     o = s.get(url + 'order/get_order_list?start_date=' + datetime.datetime.now(pytz.timezone('PRC')).strftime('%Y-%m-%d') + '&end_date=' + datetime.datetime.now(pytz.timezone('PRC')).strftime('%Y-%m-%d') + '&page_size=100&page_num=1').json()
     for i in o['result']['data']:
         if i['status'] == 40:
-            print('近两日已接过任务，请在上次完成任务后隔一天再来接单')
+            print('今日已接过任务，请明日再来接单')
             return
         if i['status'] == 10 or i['status'] == 20:
             print('您有待完成的任务')
@@ -36,7 +36,7 @@ def inf(task_id,order_id):
     title = k['mode_title']
     p = k['capital']
     print(p, u, word, end,title)
-    notice=requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(牛易)金额 ' + p +' 旺旺号:'+tb,"content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">'+Co+'</a>':'All rights reserved','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>','商品链接': u, '关键词': word,'标题': title,'做单网站':'<a href="http://a.jsy188.cn">http://a.jsy188.cn</a>','接单账号':phone},"template": "json"}),headers={'Content-Type': 'application/json'})
+    notice=requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(牛易)金额 ' + p +' 旺旺号:'+tb,"content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">'+Co+'</a>':'All rights reserved','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>','商品链接': u, '关键词': word,'标题': title,'做单网站':'<a href="http://www.7dcq.cn">http://www.7dcq.cn</a>','接单账号':phone},"template": "json"}),headers={'Content-Type': 'application/json'})
     if notice.json()['code'] == 200:print('接单成功已推送')
     else:print('接单成功推送失败')
     return
@@ -70,7 +70,7 @@ def go(a,b,c,d,wait_until,f):
                 try:
                     r = s.get(url + 'task/receive_task_list?page_size=30&page_num=1').json()
                     if r['code']==202:
-                        requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(牛易)请先完成任务消息再来接单!', "content": {'做单网站': '<a href="http://a.jsy188.cn">http://a.jsy188.cn</a>','接单账号': phone}, "template": "json"}), headers={'Content-Type': 'application/json'})
+                        requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(牛易)请先完成任务消息再来接单!', "content": {'做单网站': '<a href="http://www.7dcq.cn">http://www.7dcq.cn</a>','接单账号': phone}, "template": "json"}), headers={'Content-Type': 'application/json'})
                         print(r['error_msg'])
                         return
                     if r['result']:

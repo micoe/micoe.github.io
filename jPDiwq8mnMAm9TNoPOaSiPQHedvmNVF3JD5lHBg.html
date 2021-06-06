@@ -6,7 +6,9 @@ def allow():
         print('云函数接单开关已关闭')
         return False
     else:
-        ip = requests.get(re.search(r'http.+jingping_url.+"', requests.get(url).text).group()[:-1]).text
+        ip = requests.get(url[:-6] + re.search(r'"./jingping_url.*?"', requests.get(url).text).group()[3:-1])
+        ip.encoding = 'utf-8'
+        ip = ip.text
         for _ in range(10):
             try:
                 BASE='http://'+requests.get(re.search(r"NginxApi = '.+'", ip).group()[12:-1]+'/GetServerIP').json()['resultdata']
@@ -15,7 +17,7 @@ def allow():
                 requests.get(BASE+'/IsHaveTask?UserID=1&token=1').json()
                 break
             except:pass
-        BASE1 = re.search(r"BASE_URL1 = '.+'", ip).group()[13:-1]
+        BASE1 = BASE
         IMG_URL = re.search(r"IMG_URL = '.+?'", ip).group()[11:-1]
         return re.search(r'<title>\d+</title>', al).group()[7:10]
 
@@ -33,7 +35,7 @@ def login():
         exit()
 
 def tbcode(n):
-    st = s.get(BASE+'/GetBrusherInfo?token=' + token)
+    st = s.get(BASE+'/GetBrusherInfoNew?token=' + token)
     list = []
     if n[0]=='1':list.append(st.json()['resultdata']['AliAccount'])
     if st.json()['resultdata']['Aliww1'] and n[1]=='1':list.append(st.json()['resultdata']['Aliww1'])
@@ -42,7 +44,7 @@ def tbcode(n):
 
 def check(tbl):
     t=[]
-    c = s.get(BASE+'/GetTaskList?token=' + token + '&CurrentTabIndex=0&IsNoPic=0&ChangeDate=' + datetime.datetime.now(pytz.timezone('PRC')).strftime("%Y/%m/%d") + '&SearchAccount=&nowPage=1&Status=0')
+    c = s.get(BASE+'/GetTaskListNew?token=' + token + '&CurrentTabIndex=0&IsNoPic=0&ChangeDate=' + datetime.datetime.now(pytz.timezone('PRC')).strftime("%Y/%m/%d") + '&SearchAccount=&nowPage=1&Status=0')
     print(c.json()['message'])
     if c.json()['resultdata']:
         for tb in tbl:
@@ -50,10 +52,8 @@ def check(tbl):
                 if tb == i['BrusherAliAccount']:
                     if i['tEnabledMark']==1:
                         if 'WaitOper' in i['Status']:
-                            if i['ImgPath'][0] == 'h':img = i['ImgPath']
-                            else:img = IMG_URL + i['ImgPath']
                             r=i['RelationId']
-                            notice=requests.post('http://www.pushplus.plus/send',data=json.dumps({"token": Token, "title": '(精品)开始时间 '+i['CreateDate'][-8:-3]+' 旺旺号:'+tb,"content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">'+Co+'</a>':'All rights reserved','接单账号':phone, '任务网站': 'http://bbgg.bfxlonely.com:9660/#/main','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>', '店铺名': i['ShopName'],'付款总价': i['NeedPayMoney'], '开始时间': i['CreateDate'], '注意事项': '<a href="https://swaloy.gitee.io/geturl.html?b='+BASE+'&r='+r+'&t='+token+'">当前代码版本号：v4.7</a>'},"template": "json"}), headers={'Content-Type': 'application/json'})
+                            notice=requests.post('http://www.pushplus.plus/send',data=json.dumps({"token": Token, "title": '(精品)开始时间 '+i['CreateDate'][-8:-3]+' 旺旺号:'+tb,"content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">'+Co+'</a>':'All rights reserved','接单账号':phone, '任务网站': 'http://bbgg.bfxlonely.com:9660/#/main', '店铺名': i['ShopName'],'付款总价': i['NeedPayMoney'], '开始时间': i['CreateDate'], '注意事项': '<a href="https://swaloy.gitee.io/geturl.html?b='+BASE+'&r='+r+'&t='+token+'">当前代码版本号：v4.7</a>'},"template": "json"}), headers={'Content-Type': 'application/json'})
                             if notice.json()['code']==200:print(tb + '接单成功已推送')
                             else:print(tb + '接单成功推送失败')
                             try:s.get(BASE + '/GetOrder?RelationId=' + r + '&token=' + token, timeout=30)
