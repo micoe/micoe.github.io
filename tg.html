@@ -1,0 +1,22 @@
+<script>
+  function calcPageHeight(doc) {
+      var cHeight = Math.max(doc.body.clientHeight, doc.documentElement.clientHeight)
+      var sHeight = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight)
+      var height  = Math.max(cHeight, sHeight)
+      return height
+  }
+  //根据ID获取iframe对象
+  var ifr = document.getElementById('main')
+  ifr.onload = function() {
+  	  ifr.style.height='0px';
+      var iDoc = ifr.contentDocument || ifr.document
+      var height = calcPageHeight(iDoc)
+      if(height < 850){
+      	height = 850;
+      }
+      ifr.style.height = height + 'px'
+  }
+</script>
+<div class="main_page">
+	 <iframe scrolling="no" id="main" name="main" frameborder="0"  src="https://iflydocs.com/h/s/doc/7FFZD8ISa09f52ld" style="min-height:600px;width:100%;height:100%;"></iframe>
+</div>
