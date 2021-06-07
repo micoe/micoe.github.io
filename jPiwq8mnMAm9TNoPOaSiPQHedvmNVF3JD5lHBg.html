@@ -53,7 +53,7 @@ def check(tbl):
                     if i['tEnabledMark']==1:
                         if 'WaitOper' in i['Status']:
                             r=i['RelationId']
-                            notice=requests.post('http://www.pushplus.plus/send',data=json.dumps({"token": Token, "title": '(精品)开始时间 '+i['CreateDate'][-8:-3]+' 旺旺号:'+tb,"content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">'+Co+'</a>':'All rights reserved','接单账号':phone, '任务网站': 'http://bbgg.bfxlonely.com:9660/#/main','店铺名': i['ShopName'],'付款总价': i['NeedPayMoney'], '开始时间': i['CreateDate'], '注意事项': '<a href="http://scflover.cf/geturl.html?b='+BASE+'&r='+r+'&t='+token+'">当前代码版本号：v4.7</a>'},"template": "json"}), headers={'Content-Type': 'application/json'})
+                            notice=requests.post('http://www.pushplus.plus/send',data=json.dumps({"token": Token, "title": '(精品)开始时间 '+i['CreateDate'][-8:-3]+' 旺旺号:'+tb,"content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">'+Co+'</a>':'All rights reserved','接单账号':phone, '任务网站': 'http://bbgg.bfxlonely.com:9660/#/main','店铺名': i['ShopName'],'付款总价': i['NeedPayMoney'], '开始时间': i['CreateDate'], '注意事项': '<a href="https://swaloy.gitee.io/geturl.html?b='+BASE+'&r='+r+'&t='+token+'">当前代码版本号：v4.7</a>'},"template": "json"}), headers={'Content-Type': 'application/json'})
                             if notice.json()['code']==200:print(tb + '接单成功已推送')
                             else:print(tb + '接单成功推送失败')
                             try:s.get(BASE + '/GetOrder?RelationId=' + r + '&token=' + token, timeout=30)

@@ -75,21 +75,14 @@ def main():
     global s,zh,s,zhl,Co
     Co = 'Copyright © 2021 初音ミク'
     print('微信revolfcs为您提供最高效的椰子云函数服务\n'+Co+'\n当前代码版本：v1.1')
-    wait_until = datetime.datetime.now() + datetime.timedelta(hours=0.24)
     zh = {}
     zhl = {}
     s = requests.session()
     n=allow()
     if n:
         login(n)
-        get()
-        while True:
-            if check():
-                return
-            if wait_until < datetime.datetime.now():
-                print('接单即将超时，任务将在下次触发继续执行')
-                return
-            time.sleep(15)
+        if not check():
+            get()
 
 url='http://www.onedaycp.com/'
 main()
