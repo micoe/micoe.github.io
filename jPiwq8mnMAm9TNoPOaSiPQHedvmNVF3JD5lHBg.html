@@ -71,7 +71,7 @@ def receive(tbl):
         res = s.get(BASE1+'/GetOrder?token=' + token + '&Aliww=' + tb, timeout=30)
         print(tb+res.json()['message'])
         time.sleep(10)
-    if '8点' in res.text:
+    if '6点' in res.text:
         if s.get(BASE + '/GetUserMessage?IsAll=0&token=' + token).json()['resultdata']:
             requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(精品)您有待处理的工单请及时处理!',"content": {'接单账号': phone, '平台网站': 'http://bbgg.bfxlonely.com:9660/#/main'},"template": "json"}), headers={'Content-Type': 'application/json'})
         return 1

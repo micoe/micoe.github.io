@@ -1,0 +1,78 @@
+import time,hashlib,random,json,re
+from urllib3 import encode_multipart_formdata
+
+def allow():
+    al = requests.get(folder.replace('lanzous','lanzoui'), headers={'User-Agent': 'yaohuoid34976'}).text
+    if re.search(r'<title>\d+</title>', al).group()[7:8] == '2':
+        print('云函数接单开关已关闭')
+        return False
+    else:return 1
+
+def login():
+    global secret_key,user_id,login_token
+    try:
+        login = s.post(url+'login/login', headers={'Content-Type': 'application/x-www-form-urlencoded'}, data='parResult=%5B%7B%22emails%22%3A%5B%5D%2C%22telNums%22%3A%5B%5D%7D%2C%7B%22emails%22%3A%5B%5D%2C%22firstName%22%3A%22%22%2C%22lastName%22%3A%22%E5%BC%A0%E5%AE%87%22%2C%22telNums%22%3A%5B%2218335818141%22%5D%7D%2C%7B%22emails%22%3A%5B%5D%2C%22firstName%22%3A%22%22%2C%22lastName%22%3A%22%E8%BF%9E%E6%88%90%22%2C%22telNums%22%3A%5B%2215035811989%22%5D%7D%2C%7B%22emails%22%3A%5B%5D%2C%22firstName%22%3A%22%22%2C%22lastName%22%3A%22%E5%BB%BA%E9%B9%8F%22%2C%22telNums%22%3A%5B%2218734172208%22%5D%7D%5D&phone='+phone+'&password='+password).json()
+        l=login['data']
+        secret_key=l['secret_key']
+        user_id=str(l['user_id'])
+        login_token=l['login_token']
+        return 1
+    except:return
+
+def SignString(data):
+    list = []
+    tmp = ""
+    for key in data.keys():
+        list.append(key)
+    list.sort()
+    for i in list:
+        tmp += i + "=" + data[i] + "&"
+    tmp += "secret_key" + "=" + secret_key
+    md = hashlib.md5()
+    md.update(tmp.encode('utf-8'))
+    data['sign']=md.hexdigest()
+    return data
+
+def receive():
+    data = {"platform":"TB","protype":'1',"status":'1','user_id':user_id,"timestamp":str(round(time.time())),"login_token":login_token,"random":str(random.random())}
+    body,content_type = encode_multipart_formdata(SignString(data))
+    rec = s.post(url+'mobile/batchWangTaskStatus', headers={'Content-Type': content_type}, data=body).json()['msg']
+    print(rec)
+    return
+
+def check():
+    data = {"page":"1","status":'0','user_id':user_id,"timestamp":str(round(time.time())),"login_token":login_token,"random":str(random.random())}
+    body,content_type = encode_multipart_formdata(SignString(data))
+    ch = s.post(url+'order/index', headers={'Content-Type': content_type}, data=body).json()
+    if ch['data']['total']:
+        for i in ch['data']['records']:
+            data = {"order_id": str(i['id']), 'user_id': user_id, "timestamp": str(round(time.time())),"login_token": login_token, "random": str(random.random())}
+            body, content_type = encode_multipart_formdata(SignString(data))
+            con = s.post(url + 'order/confirmedOrder', headers={'Content-Type': content_type}, data=body).json()['msg']
+            print(con)
+            data = {"orderId": str(i['id']), 'user_id': user_id, "timestamp": str(round(time.time())),"login_token": login_token, "random": str(random.random())}
+            body, content_type = encode_multipart_formdata(SignString(data))
+            f = s.post(url + 'order/orderDetail', headers={'Content-Type': content_type}, data=body).json()['data']
+            u = 'https://item.taobao.com/item.htm?id='+f['main_goods']['goods_id']
+            img = f['main_goods']['goods_img']
+            k = f['search_word']
+            tb = f['wangwang']
+            p = str(f['main_goods']['goods_price'])
+            notice = requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(美乐)金额 ' + p + ' 旺旺号:' + tb, "content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">' + Co + '</a>': 'All rights reserved','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>', '商品链接': u,'做单网站': '<a href="https://ta.nfbabo.cn">https://ta.nfbabo.cn</a>','关键词': k, '接单账号': phone}, "template": "json"}), headers={'Content-Type': 'application/json'})
+            if notice.json()['code'] == 200:print('接单成功已推送')
+            else:print('接单成功推送失败')
+    return
+
+def main():
+    global s,Co
+    Co = 'Copyright © 2021 初音ミク'
+    print('微信revolfcs为您提供最高效的美乐云函数服务\n'+Co+'\n当前代码版本：v1.0')
+    s = requests.session()
+    n = allow()
+    if n:
+        if login():
+            receive()
+            check()
+
+url = "https://eg.nfbabo.cn/app/open/mobile/"
+main() 
