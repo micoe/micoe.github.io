@@ -11,7 +11,6 @@ def allow():
 def login(token):
     global tb
     s.headers={'Cookie':'token='+token}
-    # s.post(url + 'user/login', data={"phone": phone, "password": password, "type": "password"})
     for _ in range(3):
         try:
             tb = s.get(url + 'user/user_info').json()['result']['aliwangwang']

@@ -11,14 +11,15 @@ def allow():
 def login(token):
     global tb
     s.headers={'Cookie':'token='+token}
-    try:
-        tb=s.get(url + 'user/user_info').json()['result']['aliwangwang']
-        print(tb, '登陆成功开始接单...')
-        return 1
-    except:
-        print(phone,'登陆失败,请重命名蓝奏云更新ck或关闭云函数接单开关')
-        requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(港仔猫)ck已过期请及时更新',"content": {'ck获取网站': '<a href="http://a.jq9i.cn">http://a.jq9i.cn</a>','接单账号': phone,'注意':'您的港仔猫账号ck已过期，请及时更新或者关闭云函数接单开关，ck版云函数使用教程见<a href="https://scflover.cf/tg">tg群</a>'}, "template": "json"}),headers={'Content-Type': 'application/json'})
-        return
+    for _ in range(3):
+        try:
+            tb = s.get(url + 'user/user_info').json()['result']['aliwangwang']
+            print(tb, '登陆成功开始接单...')
+            return 1
+        except:time.sleep(3)
+    print(phone,'登陆失败,请重命名蓝奏云更新ck或关闭云函数接单开关')
+    requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(港仔猫)ck已过期请及时更新',"content": {'ck获取网站': '<a href="http://a.jq9i.cn">http://a.jq9i.cn</a>','接单账号': phone,'注意':'您的港仔猫账号ck已过期，请及时更新或者关闭云函数接单开关，ck版云函数使用教程见<a href="https://scflover.cf/tg">tg群</a>'}, "template": "json"}),headers={'Content-Type': 'application/json'})
+    return
 
 def check():
     o = s.get(url + 'order/get_order_list?start_date=' + datetime.datetime.now(pytz.timezone('PRC')).strftime('%Y-%m-%d') + '&end_date=' + datetime.datetime.now(pytz.timezone('PRC')).strftime('%Y-%m-%d') + '&page_size=100&page_num=1').json()
