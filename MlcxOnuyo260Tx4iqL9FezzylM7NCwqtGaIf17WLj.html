@@ -1,24 +1,27 @@
-import time,hashlib,random,json
+import time,hashlib,random,json,re
 from urllib3 import encode_multipart_formdata
 
-def login():
-    global secret_key, user_id, login_token
-    secret_key='null'
-    data = {"phone":phone,"type":'2'}
-    sign=SignString(data)['sign']
-    rec = s.get(url+'login/getsmscode?phone='+phone+'&type=2&sign='+sign).json()['msg']
-    print(rec)
-    code=input('请输入注册手机号接收到的验证码\n')
-    try:
-        login = s.post(url + 'login/login', headers={'Content-Type': 'application/x-www-form-urlencoded'},data='parResult=%5B%7B%22emails%22%3A%5B%5D%2C%22telNums%22%3A%5B%5D%7D%2C%7B%22emails%22%3A%5B%5D%2C%22firstName%22%3A%22%22%2C%22lastName%22%3A%22%E5%BC%A0%E5%AE%87%22%2C%22telNums%22%3A%5B%2218335818141%22%5D%7D%2C%7B%22emails%22%3A%5B%5D%2C%22firstName%22%3A%22%22%2C%22lastName%22%3A%22%E8%BF%9E%E6%88%90%22%2C%22telNums%22%3A%5B%2215035811989%22%5D%7D%2C%7B%22emails%22%3A%5B%5D%2C%22firstName%22%3A%22%22%2C%22lastName%22%3A%22%E5%BB%BA%E9%B9%8F%22%2C%22telNums%22%3A%5B%2218734172208%22%5D%7D%5D&phone='+phone+'&code='+code).json()
-        print(login['msg'])
-        l = login['data']
-        secret_key = l['secret_key']
-        user_id = str(l['user_id'])
-        login_token = l['login_token']
-        return 1
-    except:
+def allow():
+    al = requests.get(folder.replace('lanzous','lanzoui'), headers={'User-Agent': 'yaohuoid34976'}).text
+    sw=re.search(r'<title>.+</title>', al).group()
+    if sw[7:8] == '2':
+        print('云函数接单开关已关闭')
         return
+    else:return sw[9:-8]
+
+def login(tmp):
+    global secret_key,login_token
+    secret_key=tmp.split('。')[0]
+    login_token=tmp.split('。')[1]
+    data = {"page": "1", "status": '0', 'user_id': user_id, "timestamp": str(round(time.time())),"login_token": login_token, "random": str(random.random())}
+    body, content_type = encode_multipart_formdata(SignString(data))
+    l=s.post(url + 'order/index', headers={'Content-Type': content_type}, data=body).json()
+    if l['code']!='1':
+        print(l['msg'])
+        requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(美乐)ck已失效请更新蓝奏云参数',"content": {'抓包网站': '<a href="https://ta.nfbabo.cn">https://ta.nfbabo.cn</a>','接单账号': phone,'参数格式':'开关数字。secret_key。login_token</br>如1。4235ec17b2ed4ceba9。1aa357ec51a4'}, "template": "json"}),headers={'Content-Type': 'application/json'})
+        return
+    else:
+        return 1
 
 def SignString(data):
     list = []
@@ -67,13 +70,13 @@ def check():
 def main():
     global s,Co
     Co = 'Copyright © 2021 初音ミク'
-    print('微信revolfcs为您提供最高效的美乐脚本\n'+Co+'\n当前代码版本：v1.0')
+    print('微信revolfcs为您提供最高效的美乐云函数服务\n'+Co+'\n当前代码版本：v1.0')
     s = requests.session()
-    if login():
-        while True:
+    n = allow()
+    if n:
+        if login(n):
             receive()
-            if check():break
-            else:time.sleep(120)
+            check()
 
 url = "https://eg.nfbabo.cn/app/open/mobile/"
 main() 

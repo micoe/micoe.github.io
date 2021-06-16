@@ -62,8 +62,8 @@ def main():
                 while True:
                     try:
                         r = s.get(url + 'task/receive_task_list?page_size=30&page_num=1').json()
-                        if r['code']==202:
-                            requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(牛易)请先完成任务消息再来接单!', "content": {'做单网站': '<a href="http://www.7dcq.cn">http://www.7dcq.cn</a>','接单账号': phone}, "template": "json"}), headers={'Content-Type': 'application/json'})
+                        if r['code'] in [202,204]:
+                            requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(牛易)请先完成任务消息再来接单!', "content": {'做单网站': '<a href="http://a.jsy188.cn">http://a.jsy188.cn</a>','接单账号': phone}, "template": "json"}), headers={'Content-Type': 'application/json'})
                             print(r['error_msg'])
                             return
                         if r['result']:

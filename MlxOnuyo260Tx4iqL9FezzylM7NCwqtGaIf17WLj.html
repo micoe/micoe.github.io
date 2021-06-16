@@ -12,12 +12,14 @@ def login():
     global secret_key,user_id,login_token
     try:
         login = s.post(url+'login/login', headers={'Content-Type': 'application/x-www-form-urlencoded'}, data='parResult=%5B%7B%22emails%22%3A%5B%5D%2C%22telNums%22%3A%5B%5D%7D%2C%7B%22emails%22%3A%5B%5D%2C%22firstName%22%3A%22%22%2C%22lastName%22%3A%22%E5%BC%A0%E5%AE%87%22%2C%22telNums%22%3A%5B%2218335818141%22%5D%7D%2C%7B%22emails%22%3A%5B%5D%2C%22firstName%22%3A%22%22%2C%22lastName%22%3A%22%E8%BF%9E%E6%88%90%22%2C%22telNums%22%3A%5B%2215035811989%22%5D%7D%2C%7B%22emails%22%3A%5B%5D%2C%22firstName%22%3A%22%22%2C%22lastName%22%3A%22%E5%BB%BA%E9%B9%8F%22%2C%22telNums%22%3A%5B%2218734172208%22%5D%7D%5D&phone='+phone+'&password='+password).json()
+        print(login['msg'])
         l=login['data']
         secret_key=l['secret_key']
         user_id=str(l['user_id'])
         login_token=l['login_token']
         return 1
-    except:return
+    except:
+        return
 
 def SignString(data):
     list = []
