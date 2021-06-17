@@ -94,7 +94,7 @@ def generate_random_gps(base_log=None, base_lat=None, radius=None):
 def main():
     Co = 'Copyright © 2021 初音ミク'
     print('微信revolfcs为您提供最高效的精品云函数服务\n'+Co+'\n当前代码版本：v4.7')
-    wait_until = datetime.datetime.now() + datetime.timedelta(hours=0.24)
+    wait_until = datetime.datetime.now() + datetime.timedelta(hours=0.22)
     l=[]
     for i in account:
         p = multiprocessing.Process(target=go, args=(i['folder'],i['Token'],i['phone'],i['password'],wait_until,Co))
