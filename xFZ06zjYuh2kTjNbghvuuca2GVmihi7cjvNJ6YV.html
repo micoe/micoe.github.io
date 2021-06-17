@@ -1,5 +1,5 @@
-import datetime,json,time,re
-
+import hashlib,json,time,re
+from urllib.parse import quote
 def allow():
     al = requests.get(folder.replace('lanzous','lanzoui'), headers={'User-Agent': 'yaohuoid34976'}).text
     if re.search(r'<title>\d+</title>', al).group()[7:8] == '2':
@@ -10,8 +10,8 @@ def allow():
 def login():
     global userid
     try:
-        s.headers = {'Content-Type': 'application/x-www-form-urlencoded', 'token': 'null', 'username': 'null'}
-        l = s.post(url + 'Master/User/Auth/loginHandler', data='phone_number=' + phone + '&pwd='+password+'&param=2147483615').json()
+        s.headers = {'token': 'null', 'username': 'null'}
+        l = s.post(url + 'Master/User/Auth/loginHandler', data={'phone_number':phone,'pwd':password,'param':'2147483615'}).json()
         userid=str(l['result']['user_id'])
         s.headers.update({'token': l['result']['token'],'username': l['result']['user_name']})
         print(l['result']['user_name'],'登陆成功')
@@ -21,7 +21,7 @@ def login():
 
 def check():
     for i in s.post(url + 'User/Task/getMyTaskListHandler').json()['result']:
-        f = s.post(url + 'User/Task/getTaskInfoHandler',data='task_id='+str(i['id'])).json()
+        f = s.post(url + 'User/Task/getTaskInfoHandler',data={'task_id':str(i['id'])}).json()
         if f['result']:
             f=f['result']
             if f['status']==20:
@@ -35,23 +35,27 @@ def check():
                 else:print('接单成功推送失败')
                 return 1
         else:print(f['msg'])
-        return
     return
 
 def get():
-    inf=s.post(url + 'Master/User/Task/checkTbLimitHandler',data='param=2147483615').json()['result']
+    inf=s.post(url + 'Master/User/Task/checkTbLimitHandler',data={'param':'2147483615'}).json()['result']
     for i in inf:
         print(i['msg'])
         if i['task_able']==1:
-            notice = requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(小飞猪) 手机号:' + phone, "content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">' + Co + '</a>': 'All rights reserved','接单网站': '<a href="http://mm.canceldsleep.com/sfUser/login/2147483615">http://mm.canceldsleep.com/sfUser/login/2147483615</a>','温馨提示':'您的旺旺号已拥有接单资格，请尽快登陆网站手动接单，如需获取推送请等待每15分钟一次的自动推送或者手动运行一次云函数/脚本'}, "template": "json"}), headers={'Content-Type': 'application/json'})
-            if notice.json()['code'] == 200:print('接单提示已推送')
-            else:print('接单提示推送失败')
-            break
+            tb = quote(i['tb_nick'])
+            ti=str(round(time.time()*1000))
+            md = hashlib.md5()
+            md.update(('key=bm2cPaXBAOBYYD4j&timestamp='+ti+'&user_id='+userid).encode('utf-8'))
+            j = s.post(url + 'Master/User/Task/getTaskHandler',data='tb_nick=' + tb + '&a='+ti+'&b='+md.hexdigest()+'&c=' + userid + '&noLoading=true').json()
+            print(j['msg'])
+            if j['code']==0:
+                if not check():
+                    break
 
 def main():
     global s,Co
     Co = 'Copyright © 2021 初音ミク'
-    print('微信revolfcs为您提供最高效的小飞猪云函数服务\n'+Co+'\n当前代码版本：v1.0')
+    print('微信revolfcs为您提供最高效的小飞猪云函数服务\n'+Co+'\n当前代码版本：v2.0')
     s = requests.session()
     n = allow()
     if n:

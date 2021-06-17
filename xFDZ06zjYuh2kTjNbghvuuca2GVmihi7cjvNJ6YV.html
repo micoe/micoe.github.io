@@ -10,8 +10,8 @@ def allow():
 def login():
     global userid
     try:
-        s.headers = {'Content-Type': 'application/x-www-form-urlencoded', 'token': 'null', 'username': 'null'}
-        l = s.post(url + 'Master/User/Auth/loginHandler', data='phone_number=' + phone + '&pwd='+password+'&param=2147483615').json()
+        s.headers = {'token': 'null', 'username': 'null'}
+        l = s.post(url + 'Master/User/Auth/loginHandler', data={'phone_number':phone,'pwd':password,'param':'2147483615'}).json()
         userid=str(l['result']['user_id'])
         s.headers.update({'token': l['result']['token'],'username': l['result']['user_name']})
         print(l['result']['user_name'],'登陆成功')
@@ -21,7 +21,7 @@ def login():
 
 def check():
     for i in s.post(url + 'User/Task/getMyTaskListHandler').json()['result']:
-        f = s.post(url + 'User/Task/getTaskInfoHandler',data='task_id='+str(i['id'])).json()
+        f = s.post(url + 'User/Task/getTaskInfoHandler',data={'task_id':str(i['id'])}).json()
         if f['result']:
             f=f['result']
             if f['status']==20:
@@ -35,11 +35,10 @@ def check():
                 else:print('接单成功推送失败')
                 return 1
         else:print(f['msg'])
-        return
     return
 
 def get():
-    inf=s.post(url + 'Master/User/Task/checkTbLimitHandler',data='param=2147483615').json()['result']
+    inf=s.post(url + 'Master/User/Task/checkTbLimitHandler',data={'param':'2147483615'}).json()['result']
     for i in inf:
         print(i['msg'])
         if i['task_able']==1:

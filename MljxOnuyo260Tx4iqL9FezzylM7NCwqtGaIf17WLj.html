@@ -59,7 +59,7 @@ def check():
             k = f['search_word']
             tb = f['wangwang']
             p = str(f['main_goods']['goods_price'])
-            notice = requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(美乐)金额 ' + p + ' 旺旺号:' + tb, "content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">' + Co + '</a>': 'All rights reserved','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>', '商品链接': u,'做单网站': '<a href="https://ta.nfbabo.cn">https://ta.nfbabo.cn</a>','关键词': k, '接单账号': phone}, "template": "json"}), headers={'Content-Type': 'application/json'})
+            notice = requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(美乐)金额 ' + p + ' 旺旺号:' + tb, "content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">' + Co + '</a>': 'All rights reserved','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>', '商品链接': u,'做单网站': 'https://ta.yhmgzs.cn','关键词': k, '接单账号': phone}, "template": "json"}), headers={'Content-Type': 'application/json'})
             if notice.json()['code'] == 200:print('接单成功已推送')
             else:print('接单成功推送失败')
     return

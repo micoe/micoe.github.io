@@ -31,14 +31,16 @@ def check():
     return 1
 
 def geth(k):
-    global w,y
+    global w,y,sidd
     w = {}
     y = {}
-    sidd=re.search(r'sid_done = ".+"', s.get(url+'item-list-view?bid=400&code=sx5ele').text).group()[12:-1]
-    for n in range(ys):
-        m1 = s.post(url + 'get-more-view?uid=' + uid,data='bid=400&sid_done='+sidd+'&is_shanghu_done=0&page=' + str(n)).json()
-        inf(m1['data'])
+    if not k:
+        inf(s.get(url+'item-list-view?bid=400&code=sx5ele').text)
     if k:
+        sidd=re.search(r'sid_done = ".+"', s.get(url+'item-list-view?bid=400&code=sx5ele').text).group()[12:-1]
+        for n in range(ys):
+            m1 = s.post(url + 'get-more-view?uid=' + uid,data='bid=400&sid_done='+sidd+'&is_shanghu_done=0&page=' + str(n)).json()
+            inf(m1['data'])
         tplt = '{:6} {:6} {:4} {:4} {}'
         print('是否开始', '任务id', '价格','平台', '开始时间')
         for i in sorted(y.items(), key=lambda a: a[1]['price'], reverse=True):
@@ -46,7 +48,6 @@ def geth(k):
         for i in sorted(w.items(), key=lambda a: a[1]['price'], reverse=True):
             print(tplt.format(i[1]['allow'], i[0], i[1]['price'],i[1]['pt'], i[1]['time']))
     return
-
 
 def inf(soup):
     l = BeautifulSoup(soup, 'html.parser').find_all('li')
@@ -95,7 +96,7 @@ def gan():
             while wait:
                 wait = (w[id]['time'] - datetime.datetime.now()).seconds
                 print('\r等待' + str(wait) + '秒' + '开抢', end='')
-                time.sleep(1)
+                time.sleep(0.5)
             geth(0)
             if id in y:
                 if rec(id,y[id]['sid']):break
