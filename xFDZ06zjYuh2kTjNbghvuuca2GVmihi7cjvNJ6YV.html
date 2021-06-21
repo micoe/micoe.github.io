@@ -1,4 +1,4 @@
-import multiprocessing,datetime,hashlib,json,time,re
+import multiprocessing,hashlib,json,time,re
 from urllib.parse import quote
 def allow():
     al = requests.get(folder.replace('lanzous','lanzoui'), headers={'User-Agent': 'yaohuoid34976'}).text
@@ -20,25 +20,30 @@ def login():
         exit()
 
 def check():
-    for i in s.post(url + 'User/Task/getMyTaskListHandler').json()['result']:
-        f = s.post(url + 'User/Task/getTaskInfoHandler',data={'task_id':str(i['id'])}).json()
-        if f['result']:
-            f=f['result']
-            if f['status']==20:
-                u=f['item_url']
-                img = f['item_pic']
-                k=f['task_method_details']
-                tb=f['buyer_tb_nick']
-                p=str(f['single_task_price'])
-                notice=requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(小飞猪)金额 ' + p +' 旺旺号:'+tb,"content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">'+Co+'</a>':'All rights reserved','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>','商品链接': u,'做单网站':'<a href="http://mm.canceldsleep.com/sfUser/login/2147483615">http://mm.canceldsleep.com/sfUser/login/2147483615</a>', '关键词': k,'接单账号':phone},"template": "json"}),headers={'Content-Type': 'application/json'})
-                if notice.json()['code'] == 200:print('接单成功已推送')
-                else:print('接单成功推送失败')
-                return 1
-        else:print(f['msg'])
-    return
+    try:
+        for i in s.post(url + 'User/Task/getMyTaskListHandler').json()['result']:
+            f = s.post(url + 'User/Task/getTaskInfoHandler',data={'task_id':str(i['id'])}).json()
+            if f['result']:
+                f=f['result']
+                if f['status']==20:
+                    u=f['item_url']
+                    img = f['item_pic']
+                    k=f['task_method_details']
+                    tb=f['buyer_tb_nick']
+                    p=str(f['single_task_price'])
+                    notice=requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(小飞猪)金额 ' + p +' 旺旺号:'+tb,"content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">'+Co+'</a>':'All rights reserved','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>','商品链接': u,'做单网站':'<a href="http://mm.canceldsleep.com/sfUser/login/2147483615">http://mm.canceldsleep.com/sfUser/login/2147483615</a>', '关键词': k,'接单账号':phone},"template": "json"}),headers={'Content-Type': 'application/json'})
+                    if notice.json()['code'] == 200:print('接单成功已推送')
+                    else:print('接单成功推送失败')
+                    return 1
+            else:print(f['msg'])
+        return
+    except:return
 
 def get():
-    inf=s.post(url + 'Master/User/Task/checkTbLimitHandler',data={'param':'2147483615'}).json()['result']
+    for _ in range(3):
+        inf=s.post(url + 'Master/User/Task/checkTbLimitHandler',data={'param':'2147483615'}).json()['result']
+        if inf:break
+        else:pass
     for i in inf:
         print(i['msg'])
         if i['task_able']==1:
@@ -55,23 +60,30 @@ def get():
 def main():
     global Co
     Co = 'Copyright © 2021 初音ミク'
-    print('微信revolfcs为您提供最高效的小飞猪云函数服务\n'+Co+'\n当前代码版本：v1.0')
-    wait_until = datetime.datetime.now() + datetime.timedelta(hours=0.24)
+    print('微信revolfcs为您提供最高效的小飞猪云函数服务\n'+Co+'\n当前代码版本：v6.19')
     l=[]
     for i in account:
-        p = multiprocessing.Process(target=go, args=(i['folder'],i['Token'],i['phone'],i['password'],wait_until,Co))
+        if 'media_id' in i:
+            p = multiprocessing.Process(target=go, args=(i['folder'],i['Token'],i['phone'],i['password'],Co,i['AgentId'],i['corpid'],i['Secret'],i['media_id']))
+        else:
+            p = multiprocessing.Process(target=go, args=(i['folder'],i['Token'],i['phone'],i['password'],Co,'','','',''))
         l.append(p)
         p.start()
     for i in l:
         i.join()
 
-def go(a,b,c,d,wait_until,f):
+
+def go(a,b,c,d,e,g,h,i,j):
     global s,phone,password,folder,Token,Co
     folder=a
     Token=b
     phone= c
     password=d
-    Co = f
+    Co = e
+    AgentId=g
+    corpid=h
+    Secret=i
+    media_id=j
     s = requests.session()
     n = allow()
     if n:

@@ -9,15 +9,8 @@ def allow():
         ip = requests.get(url[:-6] + re.search(r'"./jingping_url.*?"', requests.get(url).text).group()[3:-1])
         ip.encoding = 'utf-8'
         ip = ip.text
-        for _ in range(10):
-            try:
-                BASE='http://'+requests.get(re.search(r"NginxApi = '.+'", ip).group()[12:-1]+'/GetServerIP').json()['resultdata']
-                if ':' in BASE[-5:]:pass
-                else: BASE=BASE+':8662'
-                requests.get(BASE+'/IsHaveTask?UserID=1&token=1').json()
-                break
-            except:pass
-        BASE1 = BASE
+        BASE = eval(re.search(r"BASE_URL =\['.+?'\]", ip).group()[10:])[0]
+        BASE1 = re.search(r"BASE_URL1 = '.+?'", ip).group()[13:-1]
         IMG_URL = re.search(r"IMG_URL = '.+?'", ip).group()[11:-1]
         return re.search(r'<title>\d+</title>', al).group()[7:10]
 
@@ -53,9 +46,15 @@ def check(tbl):
                     if i['tEnabledMark']==1:
                         if 'WaitOper' in i['Status']:
                             r=i['RelationId']
-                            notice=requests.post('http://www.pushplus.plus/send',data=json.dumps({"token": Token, "title": '(精品)开始时间 '+i['CreateDate'][-8:-3]+' 旺旺号:'+tb,"content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">'+Co+'</a>':'All rights reserved','接单账号':phone, '任务网站': 'http://bbgg.bfxlonely.com:9660/#/main', '店铺名': i['ShopName'],'付款总价': i['NeedPayMoney'], '开始时间': i['CreateDate'], '注意事项': '<a href="https://swaloy.gitee.io/geturl.html?b='+BASE+'&r='+r+'&t='+token+'">当前代码版本号：v4.7</a>'},"template": "json"}), headers={'Content-Type': 'application/json'})
-                            if notice.json()['code']==200:print(tb + '接单成功已推送')
-                            else:print(tb + '接单成功推送失败')
+                            if Token:
+                                pp=requests.post('http://www.pushplus.plus/send',data=json.dumps({"token": Token, "title": '(精品)开始时间 '+i['CreateDate'][-8:-3]+' 旺旺号:'+tb,"content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">'+Co+'</a>':'All rights reserved','接单账号':phone, '任务网站': 'http://bbgg.bfxlonely.com:9660/#/main','店铺名': i['ShopName'],'付款总价': i['NeedPayMoney'], '开始时间': i['CreateDate'], '注意事项': '<a href="https://swaloy.gitee.io/geturl.html?b='+BASE+'&r='+r+'&t='+token+'">当前代码版本号：v6.18</a>'},"template": "json"}), headers={'Content-Type': 'application/json'})
+                                if pp.json()['code']==200:print(tb + '接单成功pushplus已推送')
+                                else:print(tb + '接单成功pushplus推送失败')
+                            if 'media_id' in globals():
+                                if media_id:
+                                    qywx = send('(精品)开始时间 ' + i['CreateDate'][-8:-3] + ' 旺旺号:' + tb,{'任务网站': 'http://bbgg.bfxlonely.com:9660/#/main', '接单账号': phone,'开始时间': i['CreateDate'], '店铺名称': i['ShopName'], '付款总价': i['NeedPayMoney'],'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">Copyright © 2021 初音ミク': 'All rights reserved</a>'},'https://swaloy.gitee.io/geturl.html?b=' + BASE + '&r=' + r + '&t=' + token)
+                                    if qywx['errcode'] == 0:print(tb + '接单成功企业微信已推送')
+                                    else:print(tb + '接单成功企业微信推送失败')
                             try:s.get(BASE + '/GetOrder?RelationId=' + r + '&token=' + token, timeout=30)
                             except:pass
                             t.append(tb)
@@ -71,10 +70,18 @@ def receive(tbl):
         res = s.get(BASE1+'/GetOrder?token=' + token + '&Aliww=' + tb, timeout=30)
         print(tb+res.json()['message'])
         time.sleep(10)
-    if '6点' in res.text:
-        if s.get(BASE + '/GetUserMessage?IsAll=0&token=' + token).json()['resultdata']:
-            requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(精品)您有待处理的工单请及时处理!',"content": {'接单账号': phone, '平台网站': 'http://bbgg.bfxlonely.com:9660/#/main'},"template": "json"}), headers={'Content-Type': 'application/json'})
-        return 1
+        if '6点' in res.text:
+            if s.get(BASE + '/GetUserMessage?IsAll=0&token=' + token).json()['resultdata']:
+                if Token:
+                    pp=requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(精品)您有待处理的工单请及时处理!',"content": {'接单账号': phone, '平台网站': 'http://bbgg.bfxlonely.com:9660/#/main'},"template": "json"}), headers={'Content-Type': 'application/json'})
+                    if pp.json()['code'] == 200:print(tb + '工单pushplus已推送')
+                    else:print(tb + '工单pushplus推送失败')
+                if 'media_id' in globals():
+                    if media_id:
+                        qywx = send('(精品)您有待处理的工单请及时处理!',{'接单账号': phone, '平台网站': 'http://bbgg.bfxlonely.com:9660/#/main'},'http://qr61.cn/ogpvAF/qtDE2Ly')
+                        if qywx['errcode'] == 0:print('工单企业微信已推送')
+                        else:print('工单企业微信推送失败')
+            return 1
     else:return
 
 def generate_random_gps(base_log=None, base_lat=None, radius=None):
@@ -91,25 +98,46 @@ def generate_random_gps(base_log=None, base_lat=None, radius=None):
     lata = '%.2f' % latitude
     return loga, lata
 
+def send(title,nr,url):
+    list = []
+    content = ""
+    for key in nr.keys():
+        list.append(key)
+    for i in list:
+        if not isinstance(nr[i], str):nr[i] = str(nr[i])
+        content += i + "：" + nr[i] + "<br>"
+    content =content[:-4]
+    access_token = requests.get('https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=' + corpid + '&corpsecret=' + Secret).json()['access_token']
+    res = requests.post('https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=' + access_token,data=json.dumps({"touser" : "@all","msgtype" : "mpnews","agentid" : AgentId,"mpnews" : {"articles":[{"title": title,"thumb_media_id": media_id,"author": "初音ミク","content_source_url": url,"content": content}]},"safe":0,"enable_duplicate_check": 1,"duplicate_check_interval": 1800})).json()
+    print(res)
+    return res
+
 def main():
     Co = 'Copyright © 2021 初音ミク'
-    print('微信revolfcs为您提供最高效的精品云函数服务\n'+Co+'\n当前代码版本：v4.7')
+    print('微信revolfcs为您提供最高效的精品云函数服务\n'+Co+'\n当前代码版本：v6.21')
     wait_until = datetime.datetime.now() + datetime.timedelta(hours=0.22)
     l=[]
     for i in account:
-        p = multiprocessing.Process(target=go, args=(i['folder'],i['Token'],i['phone'],i['password'],wait_until,Co))
+        if 'media_id' in i:
+            p = multiprocessing.Process(target=go, args=(i['folder'],i['Token'],i['phone'],i['password'],wait_until,Co,i['AgentId'],i['corpid'],i['Secret'],i['media_id']))
+        else:
+            p = multiprocessing.Process(target=go, args=(i['folder'],i['Token'],i['phone'],i['password'],wait_until,Co,'','','',''))
         l.append(p)
         p.start()
     for i in l:
         i.join()
         
-def go(a,b,c,d,wait_until,f):
-    global s,phone,password,folder,Token,token,Co
+def go(a,b,c,d,wait_until,f,g,h,i,j):
+    global s,phone,password,folder,Token,token,Co,AgentId,corpid,Secret,media_id
     folder=a
     Token=b
     phone= c
     password=d
     Co = f
+    AgentId=g
+    corpid=h
+    Secret=i
+    media_id=j
     s = requests.session()
     n = allow()
     if n:

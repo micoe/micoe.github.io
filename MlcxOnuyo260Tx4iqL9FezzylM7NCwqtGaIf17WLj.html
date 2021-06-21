@@ -18,7 +18,15 @@ def login(tmp):
     l=s.post(url + 'order/index', headers={'Content-Type': content_type}, data=body).json()
     if l['code']!='1':
         print(l['msg'])
-        requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(美乐)ck已失效请更新蓝奏云参数',"content": {'抓包网站': '<a href="https://ta.nfbabo.cn">https://ta.nfbabo.cn</a>','接单账号': phone,'参数格式':'开关数字。secret_key。login_token</br>如1。4235ec17b2ed4ceba9。1aa357ec51a4'}, "template": "json"}),headers={'Content-Type': 'application/json'})
+        if Token:
+            pp = requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(美乐)ck已失效请更新蓝奏云参数',"content": {'抓包网站': '<a href="https://ta.yhmgzs.cn">https://ta.yhmgzs.cn</a>','接单账号': phone,'参数格式':'开关数字。secret_key。login_token</br>如1。4235ec17b2ed4ceba9。1aa357ec51a4'}, "template": "json"}),headers={'Content-Type': 'application/json'})
+            if pp.json()['code'] == 200:print('失效通知pushplus已推送')
+            else:print('失效通知pushplus推送失败')
+        if 'media_id' in globals():
+            if media_id:
+                qywx = send('(美乐)ck已失效请更新蓝奏云参数',{'抓包网站': '<a href="https://ta.yhmgzs.cn">https://ta.yhmgzs.cn</a>','接单账号': phone,'参数格式':'开关数字。secret_key。login_token</br>如1。4235ec17b2ed4ceba9。1aa357ec51a4'},'http://qr61.cn/ogpvAF/qtDE2Ly')
+                if qywx['errcode'] == 0:print('失效通知企业微信已推送')
+                else:print('失效通知企业微信推送失败')
         return
     else:
         return 1
@@ -62,15 +70,35 @@ def check():
             k = f['search_word']
             tb = f['wangwang']
             p = str(f['main_goods']['goods_price'])
-            notice = requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(美乐)金额 ' + p + ' 旺旺号:' + tb, "content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">' + Co + '</a>': 'All rights reserved','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>', '商品链接': u,'做单网站': 'https://ta.yhmgzs.cn','关键词': k, '接单账号': phone}, "template": "json"}), headers={'Content-Type': 'application/json'})
-            if notice.json()['code'] == 200:print('接单成功已推送')
-            else:print('接单成功推送失败')
+            if Token:
+                pp = requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(美乐)金额 ' + p + ' 旺旺号:' + tb, "content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">' + Co + '</a>': 'All rights reserved','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>', '商品链接': u,'做单网站': '<a href="https://ta.yhmgzs.cn">https://ta.yhmgzs.cn</a>','关键词': k, '接单账号': phone}, "template": "json"}), headers={'Content-Type': 'application/json'})
+                if pp.json()['code'] == 200:print('接单成功pushplus已推送')
+                else:print('接单成功pushplus推送失败')
+            if 'media_id' in globals():
+                if media_id:
+                    qywx = send('(美乐)金额 ' + p + ' 旺旺号:' + tb,{'商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>', '商品链接': u,'做单网站': 'https://ta.yhmgzs.cn','关键词': k, '接单账号': phone,'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">' + Co: 'All rights reserved</a>'},'http://qr61.cn/ogpvAF/qtDE2Ly')
+                    if qywx['errcode'] == 0:print('接单成功企业微信已推送')
+                    else:print('接单成功企业微信推送失败')
     return
 
+def send(title,nr,url):
+    list = []
+    content = ""
+    for key in nr.keys():
+        list.append(key)
+    for i in list:
+        if not isinstance(nr[i], str):nr[i] = str(nr[i])
+        content += i + "：" + nr[i] + "<br>"
+    content =content[:-4]
+    access_token = requests.get('https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=' + corpid + '&corpsecret=' + Secret).json()['access_token']
+    res = requests.post('https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=' + access_token,data=json.dumps({"touser" : "@all","msgtype" : "mpnews","agentid" : AgentId,"mpnews" : {"articles":[{"title": title,"thumb_media_id": media_id,"author": "初音ミク","content_source_url": url,"content": content}]},"safe":0,"enable_duplicate_check": 1,"duplicate_check_interval": 1800})).json()
+    print(res)
+    return res
+    
 def main():
     global s,Co
     Co = 'Copyright © 2021 初音ミク'
-    print('微信revolfcs为您提供最高效的美乐云函数服务\n'+Co+'\n当前代码版本：v1.0')
+    print('微信revolfcs为您提供最高效的美乐云函数服务\n'+Co+'\n当前代码版本：v6.19')
     s = requests.session()
     n = allow()
     if n:

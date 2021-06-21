@@ -11,14 +11,22 @@ def allow():
 def login(token):
     global tb
     s.headers={'Cookie':'token='+token}
-    for _ in range(3):
+    for _ in range(5):
         try:
             tb = s.get(url + 'user/user_info').json()['result']['aliwangwang']
             print(tb, '登陆成功开始接单...')
             return 1
         except:time.sleep(3)
     print(phone,'登陆失败,请重命名蓝奏云更新ck或关闭云函数接单开关')
-    requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(港仔猫)ck已过期请及时更新',"content": {'ck获取网站': '<a href="http://a.jq9i.cn">http://a.jq9i.cn</a>','接单账号': phone,'注意':'您的港仔猫账号ck已过期，请及时更新或者关闭云函数接单开关，ck版云函数使用教程见<a href="https://scflover.cf/tg">tg群</a>'}, "template": "json"}),headers={'Content-Type': 'application/json'})
+    if Token:
+        pp = requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '()ck已过期请及时更新',"content": {'ck获取网站': '<a href="http://d.jsy188.cn">http://d.jsy188.cn</a>','接单账号': phone,'注意':'您的港仔猫账号ck已过期，请及时更新或者关闭云函数接单开关，ck版云函数使用教程见<a href="https://scflover.cf/tg">tg群</a>'}, "template": "json"}),headers={'Content-Type': 'application/json'})
+        if pp.json()['code'] == 200:print('ck失效提醒pushplus已推送')
+        else:print('ck失效提醒任务消息pushplus推送失败')
+    if 'media_id' in globals():
+        if media_id:
+            qywx = send('(港仔猫)ck已过期请及时更新', {'ck获取网站': 'http://d.jsy188.cn','接单账号': phone,'注意':'您的港仔猫账号ck已过期，请及时更新或者关闭云函数接单开关，ck版云函数使用教程见<a href="https://scflover.cf/tg">tg群</a>'}, 'http://a.jq9i.cn')
+            if qywx['errcode'] == 0:print('任务消息企业微信已推送')
+            else:print('任务消息企业微信推送失败')
     return
 
 def check():
@@ -43,15 +51,35 @@ def inf(task_id,order_id):
     end = k['end_time']
     p = k['capital']
     print(p, u, word, end)
-    notice=requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(港仔猫)金额 ' + p +' 旺旺号:'+tb,"content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">'+Co+'</a>':'All rights reserved','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>','商品链接': u, '关键词': word,'结束时间': end,'做单网站':'<a href="http://a.jq9i.cn">http://a.jq9i.cn</a>','接单账号':phone},"template": "json"}),headers={'Content-Type': 'application/json'})
-    if notice.json()['code'] == 200:print('接单成功已推送')
-    else:print('接单成功推送失败')
+    if Token:
+        pp=requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(港仔猫)金额 ' + p +' 旺旺号:'+tb,"content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">'+Co+'</a>':'All rights reserved','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>','商品链接': u, '关键词': word,'做单网站':'<a href="http://d.jsy188.cn">http://d.jsy188.cn</a>','接单账号':phone},"template": "json"}),headers={'Content-Type': 'application/json'})
+        if pp.json()['code'] == 200:print('接单成功pushplus已推送')
+        else:print('接单成功pushplus推送失败')
+    if 'media_id' in globals():
+        if media_id:
+            qywx=send('(港仔猫)金额 ' + p +' 旺旺号:'+tb, {'商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>','商品链接': u, '关键词': word,'接单账号':phone,'做单网站':'http://d.jsy188.cn','<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">'+Co:'All rights reserved</a>'},'http://a.jq9i.cn')
+            if qywx['errcode'] == 0:print('接单成功企业微信已推送')
+            else:print('接单成功企业微信推送失败')
     return
+
+def send(title,nr,url):
+    list = []
+    content = ""
+    for key in nr.keys():
+        list.append(key)
+    for i in list:
+        if not isinstance(nr[i], str):nr[i] = str(nr[i])
+        content += i + "：" + nr[i] + "<br>"
+    content =content[:-4]
+    access_token = requests.get('https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=' + corpid + '&corpsecret=' + Secret).json()['access_token']
+    res = requests.post('https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=' + access_token,data=json.dumps({"touser" : "@all","msgtype" : "mpnews","agentid" : AgentId,"mpnews" : {"articles":[{"title": title,"thumb_media_id": media_id,"author": "初音ミク","content_source_url": url,"content": content}]},"safe":0,"enable_duplicate_check": 1,"duplicate_check_interval": 1800})).json()
+    print(res)
+    return res
 
 def main():
     global s,Co
     Co = 'Copyright © 2021 初音ミク'
-    print('微信revolfcs为您提供最高效的港仔猫云函数服务\n'+Co+'\n当前代码版本：v2.0')
+    print('微信revolfcs为您提供最高效的港仔猫云函数服务\n'+Co+'\n当前代码版本：v6.19')
     wait_until = datetime.datetime.now() + datetime.timedelta(hours=0.24)
     s = requests.session()
     n=allow()
@@ -61,9 +89,17 @@ def main():
                 while True:
                     try:
                         r = s.get(url + 'task/receive_task_list?page_size=30&page_num=1').json()
-                        if r['code']==202:
-                            requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(港仔猫)请先完成任务消息再来接单!', "content": {'做单网站': '<a href="http://a.jq9i.cn">http://a.jq9i.cn</a>','接单账号': phone}, "template": "json"}), headers={'Content-Type': 'application/json'})
+                        if r['code'] in [202,204]:
                             print(r['error_msg'])
+                            if Token:
+                                pp=requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(港仔猫)请先完成任务消息再来接单!', "content": {'做单网站': '<a href="http://d.jsy188.cn">http://d.jsy188.cn</a>','接单账号': phone}, "template": "json"}), headers={'Content-Type': 'application/json'})
+                                if pp.json()['code'] == 200:print('任务消息pushplus已推送')
+                                else:print('任务消息pushplus推送失败')
+                            if 'media_id' in globals():
+                                if media_id:
+                                    qywx = send('(港仔猫)请先完成任务消息再来接单!', {'做单网站': 'http://d.jsy188.cn','接单账号': phone},'http://a.jq9i.cn')
+                                    if qywx['errcode'] == 0:print('任务消息企业微信已推送')
+                                    else:print('任务消息企业微信推送失败')
                             return
                         if r['result']:
                             for i in r['result']['data']:
