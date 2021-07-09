@@ -35,10 +35,11 @@ def check():
                 for i in BeautifulSoup(s.get(url+'center-new?bid=145&is_new=0&fangdan_uid='+uid).text, 'html.parser').select('div.top span'):lis.append(re.sub(r'旺.+\n', '',i.get_text().replace(' ', '')))
                 wx=lis[0]
                 tb=lis[1]
-                if Token:
-                    pp = requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(聚客猫三)金额 ' + str(pr) + ' 旺旺号:' + tb, "content": {'商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>', '商品链接': u,'做单网站': '<a href="'+zd+'">查看任务搜索关键词及商家要求</a>', '接单微信': wx,'任务提交':'<a href="https://www.jukemao.net/fangdan/sub-order?order_id='+order_id+'&sid='+sid+'&uid='+uid+'&fx_type=2&send_type=1&son_num=0">跳过上传截图直接提交任务</a>','<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">'+Co:'All rights reserved</a>'}, "template": "json"}),headers={'Content-Type': 'application/json'})
-                    if pp.json()['code'] == 200:print('复审成功pushplus已推送')
-                    else:print('复审成功pushplus推送失败')
+                if 'Token' in globals():
+                    if Token:
+                        pp = requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(聚客猫三)金额 ' + str(pr) + ' 旺旺号:' + tb, "content": {'商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>', '商品链接': u,'做单网站': '<a href="'+zd+'">查看任务搜索关键词及商家要求</a>', '接单微信': wx,'任务提交':'<a href="https://www.jukemao.net/fangdan/sub-order?order_id='+order_id+'&sid='+sid+'&uid='+uid+'&fx_type=2&send_type=1&son_num=0">跳过上传截图直接提交任务</a>','<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">'+Co:'All rights reserved</a>'}, "template": "json"}),headers={'Content-Type': 'application/json'})
+                        if pp.json()['code'] == 200:print('复审成功pushplus已推送')
+                        else:print('复审成功pushplus推送失败')
                 if 'media_id' in globals():
                     if media_id:
                         qywx=send('(聚客猫三)金额 ' + str(pr) + ' 旺旺号:' + tb,{'商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>', '商品链接': u,'做单网站': '<a href="'+zd+'">查看任务搜索关键词及商家要求</a>', '接单微信': wx,'任务提交':'<a href="https://www.jukemao.net/fangdan/sub-order?order_id='+order_id+'&sid='+sid+'&uid='+uid+'&fx_type=2&send_type=1&son_num=0">跳过上传截图直接提交任务</a>','<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">'+Co:'All rights reserved</a>'},'https://www.jukemao.net/fangdan/item-list-view?bid=145&code=hn1z0c')

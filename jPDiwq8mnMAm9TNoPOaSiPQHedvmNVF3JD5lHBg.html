@@ -46,10 +46,11 @@ def check(tbl):
                     if i['tEnabledMark']==1:
                         if 'WaitOper' in i['Status']:
                             r=i['RelationId']
-                            if Token:
-                                pp=requests.post('http://www.pushplus.plus/send',data=json.dumps({"token": Token, "title": '(精品)开始时间 '+i['CreateDate'][-8:-3]+' 旺旺号:'+tb,"content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">'+Co+'</a>':'All rights reserved','接单账号':phone, '任务网站': 'http://bbgg.bfxlonely.com:9660/#/main','店铺名': i['ShopName'],'付款总价': i['NeedPayMoney'], '开始时间': i['CreateDate'], '注意事项': '<a href="https://swaloy.gitee.io/geturl.html?b='+BASE+'&r='+r+'&t='+token+'">当前代码版本号：v6.18</a>'},"template": "json"}), headers={'Content-Type': 'application/json'})
-                                if pp.json()['code']==200:print(tb + '接单成功pushplus已推送')
-                                else:print(tb + '接单成功pushplus推送失败')
+                            if 'Token' in globals():
+                                if Token:
+                                    pp=requests.post('http://www.pushplus.plus/send',data=json.dumps({"token": Token, "title": '(精品)开始时间 '+i['CreateDate'][-8:-3]+' 旺旺号:'+tb,"content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">'+Co+'</a>':'All rights reserved','接单账号':phone, '任务网站': 'http://bbgg.bfxlonely.com:9660/#/main','店铺名': i['ShopName'],'付款总价': i['NeedPayMoney'], '开始时间': i['CreateDate'], '注意事项': '<a href="https://swaloy.gitee.io/geturl.html?b='+BASE+'&r='+r+'&t='+token+'">当前代码版本号：v7.9</a>'},"template": "json"}), headers={'Content-Type': 'application/json'})
+                                    if pp.json()['code']==200:print(tb + '接单成功pushplus已推送')
+                                    else:print(tb + '接单成功pushplus推送失败')
                             if 'media_id' in globals():
                                 if media_id:
                                     qywx = send('(精品)开始时间 ' + i['CreateDate'][-8:-3] + ' 旺旺号:' + tb,{'任务网站': 'http://bbgg.bfxlonely.com:9660/#/main', '接单账号': phone,'开始时间': i['CreateDate'], '店铺名称': i['ShopName'], '付款总价': i['NeedPayMoney'],'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">Copyright © 2021 初音ミク': 'All rights reserved</a>'},'https://swaloy.gitee.io/geturl.html?b=' + BASE + '&r=' + r + '&t=' + token)
@@ -70,12 +71,13 @@ def receive(tbl):
         res = s.get(BASE1+'/GetOrder?token=' + token + '&Aliww=' + tb, timeout=30)
         print(tb+res.json()['message'])
         time.sleep(10)
-        if '6点' in res.text:
+        if '反馈' in res.text:
             if s.get(BASE + '/GetUserMessage?IsAll=0&token=' + token).json()['resultdata']:
-                if Token:
-                    pp=requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(精品)您有待处理的工单请及时处理!',"content": {'接单账号': phone, '平台网站': 'http://bbgg.bfxlonely.com:9660/#/main'},"template": "json"}), headers={'Content-Type': 'application/json'})
-                    if pp.json()['code'] == 200:print(tb + '工单pushplus已推送')
-                    else:print(tb + '工单pushplus推送失败')
+                if 'Token' in globals():
+                    if Token:
+                        pp=requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(精品)您有待处理的工单请及时处理!',"content": {'接单账号': phone, '平台网站': 'http://bbgg.bfxlonely.com:9660/#/main'},"template": "json"}), headers={'Content-Type': 'application/json'})
+                        if pp.json()['code'] == 200:print(tb + '工单pushplus已推送')
+                        else:print(tb + '工单pushplus推送失败')
                 if 'media_id' in globals():
                     if media_id:
                         qywx = send('(精品)您有待处理的工单请及时处理!',{'接单账号': phone, '平台网站': 'http://bbgg.bfxlonely.com:9660/#/main'},'http://qr61.cn/ogpvAF/qtDE2Ly')
@@ -114,7 +116,7 @@ def send(title,nr,url):
 
 def main():
     Co = 'Copyright © 2021 初音ミク'
-    print('微信revolfcs为您提供最高效的精品云函数服务\n'+Co+'\n当前代码版本：v6.21')
+    print('微信revolfcs为您提供最高效的精品云函数服务\n'+Co+'\n当前代码版本：v7.9')
     wait_until = datetime.datetime.now() + datetime.timedelta(hours=0.22)
     l=[]
     for i in account:

@@ -1,9 +1,10 @@
-import datetime, platform,json,math,random,time,os,re
+import datetime, platform,json,random,math,time,os,re
 from bs4 import BeautifulSoup
+from urllib.parse import quote
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 def check():
-    l = BeautifulSoup(s.get(url+'my-renwu?bid=1265&is_yt=0',verify=False).text,'html.parser').find_all('li')
+    l = BeautifulSoup(s.get(url+'my-renwu?bid=368&is_yt=1',verify=False).text,'html.parser').find_all('li')
     for i in l:
         if not i.attrs:
             if 'item_id' in i.a.attrs['href']:
@@ -13,54 +14,50 @@ def check():
                 u = 'https://item.taobao.com/item.htm?id=' + re.search(r"num_iid = '\d+'", s.get(url + 'item-check?item_id=' + item_id).text).group()[11:-1]
                 print(u)
                 sid = re.search(r'sid=\d+', i.a.attrs['href']).group()[4:]
-                log, lat = generate_random_gps(base_log=115.00, base_lat=30.00, radius=500000)
+                log, lat = generate_random_gps(base_log=115.00, base_lat=28.00, radius=50000)
                 zd=url[:-8]+i.a.attrs['href']
                 xx=s.get(zd).text
+                if 'fushen' in xx:
+                    tb = quote(BeautifulSoup(xx, 'html.parser').find('input', class_="shur").attrs['value'])
+                    s.post(url[:-8]+'account/save-fushen',data='back_url=%2Ffangdan%2Fitem-show%3Fis_qd%3D1%26sid%3D'+sid+'%26item_id%3D'+item_id+'&uid='+uid+'&wwid='+tb+'&location='+log+'%2C'+lat+'&location_item='+re.search(r'location_item = "\d+"', xx).group()[17:-1]+'&bid=368&is_recheck=0')
+                    print('接单成功，请耐心等待复审通过后接收任务推送')
+                    while True:
+                        try:
+                            xx = s.get(zd).text
+                            order_id = re.search(r'order_id = "\d+"', xx).group()[12:-1]
+                            break
+                        except:time.sleep(5)
                 if 'map' in xx:
-                    s.post(url[:-8]+'account/save-location',data='back_url=%2Ffangdan%2Fitem-show%3Fis_qd%3D1%26sid%3D'+sid+'%26item_id%3D'+item_id+'&uid='+uid+'&bid=1265&location='+log+'%2C'+lat+'&location_item='+re.search(r'location_item = "\d+"', xx).group()[17:-1])
+                    s.post(url[:-8]+'account/save-location',data='back_url=%2Ffangdan%2Fitem-show%3Fis_qd%3D1%26sid%3D'+sid+'%26item_id%3D'+item_id+'&uid='+uid+'&bid=368&location='+log+'%2C'+lat+'&location_item='+re.search(r'location_item = "\d+"', xx).group()[17:-1])
                     xx = s.get(zd).text
                 order_id = re.search(r'order_id = "\d+"', xx).group()[12:-1]
                 lis=[]
-                for i in BeautifulSoup(s.get(url+'center-new?bid=1265&is_new=0&fangdan_uid='+uid).text, 'html.parser').select('div.top span'):lis.append(re.sub(r'旺.+\n', '',i.get_text().replace(' ', '')))
+                for i in BeautifulSoup(s.get(url+'center-new?bid=368&is_new=0&fangdan_uid='+uid).text, 'html.parser').select('div.top span'):lis.append(re.sub(r'旺.+\n', '',i.get_text().replace(' ', '')))
                 wx=lis[0]
                 tb=lis[1]
                 if 'Token' in globals():
                     if Token:
-                        pp = requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(聚客猫一)金额 ' + str(pr) + ' 旺旺号:' + tb, "content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">' + Co + '</a>': 'All rights reserved','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>', '商品链接': u,'做单网站': '<a href="'+zd+'">查看任务搜索关键词及商家要求</a>', '接单微信': wx,'任务提交':'<a href="https://www.jukemao.net/fangdan/sub-order?order_id='+order_id+'&sid='+sid+'&uid='+uid+'&fx_type=2&send_type=1&son_num=0">跳过上传截图直接提交任务</a>'}, "template": "json"}),headers={'Content-Type': 'application/json'})
+                        pp = requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(聚客猫四)金额 ' + str(pr) + ' 旺旺号:' + tb, "content": {'商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>', '商品链接': u,'做单网站': '<a href="'+zd+'">查看任务搜索关键词及商家要求</a>', '接单微信': wx,'任务提交':'<a href="https://www.jukemao.net/fangdan/sub-order?order_id='+order_id+'&sid='+sid+'&uid='+uid+'&fx_type=2&send_type=1&son_num=0">跳过上传截图直接提交任务</a>','<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">'+Co:'All rights reserved</a>'}, "template": "json"}),headers={'Content-Type': 'application/json'})
                         if pp.json()['code'] == 200:print('复审成功pushplus已推送')
                         else:print('复审成功pushplus推送失败')
                 if 'media_id' in globals():
                     if media_id:
-                        qywx=send('(聚客猫一)金额 ' + str(pr) + ' 旺旺号:' + tb,{'商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>', '商品链接': u,'做单网站': '<a href="'+zd+'">查看任务搜索关键词及商家要求</a>', '接单微信': wx,'任务提交':'<a href="https://www.jukemao.net/fangdan/sub-order?order_id='+order_id+'&sid='+sid+'&uid='+uid+'&fx_type=2&send_type=1&son_num=0">跳过上传截图直接提交任务</a>','<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">'+Co:'All rights reserved</a>'},'https://www.jukemao.net/fangdan/sale-qrcode-info?bid=1265&pid=1927081&rand=000000')
+                        qywx=send('(聚客猫四)金额 ' + str(pr) + ' 旺旺号:' + tb,{'商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>', '商品链接': u,'做单网站': '<a href="'+zd+'">查看任务搜索关键词及商家要求</a>', '接单微信': wx,'任务提交':'<a href="https://www.jukemao.net/fangdan/sub-order?order_id='+order_id+'&sid='+sid+'&uid='+uid+'&fx_type=2&send_type=1&son_num=0">跳过上传截图直接提交任务</a>','<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">'+Co:'All rights reserved</a>'},'https://www.jukemao.net/fangdan/item-list-view?bid=368&code=iws3t4')
                         if qywx['errcode'] == 0:print('复审成功企业微信已推送')
                         else:print('复审成功企业微信推送失败')
                 return
     return 1
-
-def generate_random_gps(base_log=None, base_lat=None, radius=None):
-    radius_in_degrees = radius / 111300
-    u = float(random.uniform(0.0, 1.0))
-    v = float(random.uniform(0.0, 1.0))
-    w = radius_in_degrees * math.sqrt(u)
-    t = 2 * math.pi * v
-    x = w * math.cos(t)
-    y = w * math.sin(t)
-    longitude = y + base_log
-    latitude = x + base_lat
-    loga = '%.6f' % longitude
-    lata = '%.6f' % latitude
-    return loga, lata
 
 def geth(k):
     global w,y,sidd
     w = {}
     y = {}
     if not k:
-        inf(s.get(url+'item-list-view?bid=1265&code=zrtwn5').text)
+        inf(s.get(url+'item-list-view?bid=368&code=iws3t4').text)
     if k:
-        sidd=re.search(r'sid_done = ".+"', s.get(url+'item-list-view?bid=1265&code=zrtwn5').text).group()[12:-1]
+        sidd=re.search(r'sid_done = ".+"', s.get(url+'item-list-view?bid=368&code=iws3t4').text).group()[12:-1]
         for n in range(ys):
-            m1 = s.post(url + 'get-more-view?uid=' + uid,data='bid=1265&sid_done='+sidd+'&is_shanghu_done=0&page=' + str(n)).json()
+            m1 = s.post(url + 'get-more-view?uid=' + uid,data='bid=368&sid_done='+sidd+'&is_shanghu_done=0&page=' + str(n)).json()
             inf(m1['data'])
         tplt = '{:6} {:6} {:4} {:4} {}'
         print('是否开始', '任务id', '价格','平台', '开始时间')
@@ -75,42 +72,28 @@ def inf(soup):
     for i in l:
         if not i.attrs:
             al = i.a.get_text()
-            #img = i.find('p', class_="img").img.attrs['src']
             pt = i.find('p', class_="h3").img.attrs['src'][-6:-4]
             pr = int(i.find('p', class_="h4").get_text()[5:-3])
             if 'data-item_id' in i.a.attrs:
                 id = i.a.attrs['data-item_id']
                 sid =i.a.attrs['data-sid']
-                d = {id: {'allow': al, 'price': pr, 'pt':pt,'sid':sid}}
+                d = {id: {'allow': al,'price': pr,'pt':pt,'sid':sid}}
                 y.update(d)
             else:
                 id = i.dd.span.get('data-item_id')
-                ti = int(i.dd.span.get('data-endtime')) + 1
+                ti = int(i.dd.span.get('data-endtime'))
                 t = datetime.datetime.now() + datetime.timedelta(seconds=ti)
                 d = {id: {'allow': al,'price':pr,'pt':pt,'time':t}}
                 w.update(d)
 
 def rec(id,sid):
     global sd
-    sd = s.post(url + 'send-data', data='sid='+sid+'&bid=1265&uid=' + uid + '&is_qd=1&item_id=' + id).json()
+    sd = s.post(url + 'send-data', data='sid='+sid+'&bid=368&uid=' + uid + '&is_qd=1&item_id=' + id).json()
     if sd['code']==200:
         print('\n',sd['data'])
         check()
         return True
     else:return
-
-def send(title,nr,url):
-    list = []
-    content = ""
-    for key in nr.keys():
-        list.append(key)
-    for i in list:
-        if not isinstance(nr[i], str):nr[i] = str(nr[i])
-        content += i + "：" + nr[i] + "<br>"
-    content =content[:-4]
-    access_token = requests.get('https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=' + corpid + '&corpsecret=' + Secret).json()['access_token']
-    res = requests.post('https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=' + access_token,data=json.dumps({"touser" : "@all","msgtype" : "mpnews","agentid" : AgentId,"mpnews" : {"articles":[{"title": title,"thumb_media_id": media_id,"author": "初音ミク","content_source_url": url,"content": content}]},"safe":0,"enable_duplicate_check": 1,"duplicate_check_interval": 1800})).json()
-    return res
 
 def gan():
     while True:
@@ -149,6 +132,33 @@ def gan():
                 continue
         else:print('id无效,请重新输入')
 
+def generate_random_gps(base_log=None, base_lat=None, radius=None):
+    radius_in_degrees = radius / 111300
+    u = float(random.uniform(0.0, 1.0))
+    v = float(random.uniform(0.0, 1.0))
+    w = radius_in_degrees * math.sqrt(u)
+    t = 2 * math.pi * v
+    x = w * math.cos(t)
+    y = w * math.sin(t)
+    longitude = y + base_log
+    latitude = x + base_lat
+    loga = '%.6f' % longitude
+    lata = '%.6f' % latitude
+    return loga, lata
+
+def send(title,nr,url):
+    list = []
+    content = ""
+    for key in nr.keys():
+        list.append(key)
+    for i in list:
+        if not isinstance(nr[i], str):nr[i] = str(nr[i])
+        content += i + "：" + nr[i] + "<br>"
+    content =content[:-4]
+    access_token = requests.get('https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=' + corpid + '&corpsecret=' + Secret).json()['access_token']
+    res = requests.post('https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=' + access_token,data=json.dumps({"touser" : "@all","msgtype" : "mpnews","agentid" : AgentId,"mpnews" : {"articles":[{"title": title,"thumb_media_id": media_id,"author": "初音ミク","content_source_url": url,"content": content}]},"safe":0,"enable_duplicate_check": 1,"duplicate_check_interval": 1800})).json()
+    return res
+    
 def main():
     if check():
         global ys

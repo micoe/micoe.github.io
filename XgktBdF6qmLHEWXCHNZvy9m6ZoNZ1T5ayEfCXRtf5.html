@@ -41,10 +41,11 @@ def check():
                 bj = inf['show']['s1']
                 sj = inf['show']['s8']
                 ww = inf['show']['s10']
-                if Token:
-                    pp = requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(小钢盔)金额 ' + bj + ' 旺旺号:' + ww, "content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">' + Co + '</a>': 'All rights reserved','接单账号': phone, '任务网站': 'http://www.pingce10086.com/h5.html','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>', '核对标题':title,'付款总价': bj, '截止时间': sj,'商品链接': u,'搜索关键词':kw},"template": "json"}), headers={'Content-Type': 'application/json'})
-                    if pp.json()['code'] == 200:print('接单成功pushplus已推送')
-                    else:print('接单成功pushplus推送失败')
+                if 'Token' in globals():
+                    if Token:
+                        pp = requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(小钢盔)金额 ' + bj + ' 旺旺号:' + ww, "content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">' + Co + '</a>': 'All rights reserved','接单账号': phone, '任务网站': 'http://www.pingce10086.com/h5.html','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>', '核对标题':title,'付款总价': bj, '截止时间': sj,'商品链接': u,'搜索关键词':kw},"template": "json"}), headers={'Content-Type': 'application/json'})
+                        if pp.json()['code'] == 200:print('接单成功pushplus已推送')
+                        else:print('接单成功pushplus推送失败')
                 if 'media_id' in globals():
                     if media_id:
                         qywx = send('(小钢盔)金额 ' + bj + ' 旺旺号:' + ww,{'商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>', '核对标题':title,'付款总价': bj, '截止时间': sj,'商品链接': u,'关键词':kw,'做单网站': 'http://www.pingce10086.com/h5.html','<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">' + Co: 'All rights reserved</a>'},'http://qr61.cn/ogpvAF/qtDE2Ly')
@@ -84,7 +85,7 @@ def send(title,nr,url):
 def main():
     global s,Co
     Co = 'Copyright © 2021 初音ミク'
-    print('微信revolfcs为您提供最高效的小钢盔云函数服务\n'+Co+'\n当前代码版本：v6.19')
+    print('微信revolfcs为您提供最高效的小钢盔云函数服务\n'+Co+'\n当前代码版本：v7.9')
     s = requests.session()
     n = allow()
     if n:

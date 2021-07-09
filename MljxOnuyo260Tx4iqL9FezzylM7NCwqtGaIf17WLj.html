@@ -59,10 +59,11 @@ def check():
             k = f['search_word']
             tb = f['wangwang']
             p = str(f['main_goods']['goods_price'])
-            if Token:
-                pp = requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(美乐)金额 ' + p + ' 旺旺号:' + tb, "content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">' + Co + '</a>': 'All rights reserved','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>', '商品链接': u,'做单网站': '<a href="https://ta.yhmgzs.cn">https://ta.yhmgzs.cn</a>','关键词': k, '接单账号': phone}, "template": "json"}), headers={'Content-Type': 'application/json'})
-                if pp.json()['code'] == 200:print('接单成功pushplus已推送')
-                else:print('接单成功pushplus推送失败')
+            if 'Token' in globals():
+                if Token:
+                    pp = requests.post('http://www.pushplus.plus/send', data=json.dumps({"token": Token, "title": '(美乐)金额 ' + p + ' 旺旺号:' + tb, "content": {'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">' + Co + '</a>': 'All rights reserved','商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>', '商品链接': u,'做单网站': '<a href="https://ta.yhmgzs.cn">https://ta.yhmgzs.cn</a>','关键词': k, '接单账号': phone}, "template": "json"}), headers={'Content-Type': 'application/json'})
+                    if pp.json()['code'] == 200:print('接单成功pushplus已推送')
+                    else:print('接单成功pushplus推送失败')
             if 'media_id' in globals():
                 if media_id:
                     qywx = send('(美乐)金额 ' + p + ' 旺旺号:' + tb,{'商品主图': '<img src="' + img + '" alt="商品主图" width="100%"/>', '商品链接': u,'做单网站': 'https://ta.yhmgzs.cn','关键词': k, '接单账号': phone,'<a href="http://qr61.cn/ogpvAF/qtDE2Ly" style="color:black">' + Co: 'All rights reserved</a>'},'http://qr61.cn/ogpvAF/qtDE2Ly')
@@ -88,7 +89,7 @@ def send(title,nr,url):
 def main():
     global s,Co
     Co = 'Copyright © 2021 初音ミク'
-    print('微信revolfcs为您提供最高效的美乐脚本\n'+Co+'\n当前代码版本：v6.19')
+    print('微信revolfcs为您提供最高效的美乐脚本\n'+Co+'\n当前代码版本：v7.9')
     s = requests.session()
     if login():
         while True:
